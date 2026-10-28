@@ -73,7 +73,10 @@ jobs:
       - name: 记录检查时间
         # 只提交几百字节的 status：既能给页面提供「上次检查」时间，
         # 也让仓库保持每天有提交，避免 GitHub 在 60 天无活动后自动停用定时任务。
+        # 状态文件是「最新一次覆盖即可」的语义，所以被别的运行抢先时不做 merge/rebase，
+        # 而是以远端为基准重放自己的版本（rebase 同一个文件必然冲突）。
         run: |
+          set -u
           git add data/snapshot.status.json
           if git diff --cached --quiet; then
             echo "status 无变化，跳过提交"
@@ -81,5 +84,19 @@ jobs:
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(snapshot): 检查于 $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push || { git pull --rebase --autostash && git push; }
+          MSG="chore(snapshot): 检查于 $(date -u +%Y-%m-%dT%H:%MZ)"
+          git commit -q -m "$MSG"
+
+          for attempt in 1 2 3; do
+            if git push; then exit 0; fi
+            echo "第 $attempt 次推送被拒，改用远端最新提交重放"
+            cp data/snapshot.status.json /tmp/snapshot.status.json
+            git fetch -q origin "$GITHUB_REF_NAME"
+            git reset -q --hard "origin/$GITHUB_REF_NAME"
+            cp /tmp/snapshot.status.json data/snapshot.status.json
+            git add data/snapshot.status.json
+            git commit -q -m "$MSG" || exit 0
+            sleep 5
+          done
+          echo "::error::status 提交连续 3 次被拒（部署已完成，不影响站点）"
+          exit 1
