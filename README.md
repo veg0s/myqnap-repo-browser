@@ -4,6 +4,8 @@
 
 在线地址：`https://<USER>.github.io/myqnap-repo-browser/`（把 `<USER>` 换成你的 GitHub 用户名）
 
+[![snapshot](https://github.com/<USER>/myqnap-repo-browser/actions/workflows/snapshot.yml/badge.svg)](https://github.com/<USER>/myqnap-repo-browser/actions/workflows/snapshot.yml)
+
 ## 特性
 
 - **按架构与机型筛选**：`x86_64 / arm_64 / arm-x41 / arm-x19 / arm-x31 / x86 32-bit`，以及具体机型（TS-X35、TS-X16 …）
@@ -41,6 +43,21 @@ git add data/snapshot.json && git commit -m "chore: 更新仓库快照" && git p
 ```
 
 脚本输出里会打印条目数、JSON 体积与 gzip 体积。注意：**`items` 顺序必须与 XML 一致**（前端拿数组下标当 id），所以不要手工编辑快照、也不要按字段重排。
+
+### 自动更新（GitHub Actions）
+
+`.github/workflows/snapshot.yml` 每天自动跑一次，**不用手动维护**：
+
+- 触发：定时 **UTC 19:00（北京时间次日 03:00）**，或在 Actions 页面手动 `Run workflow`
+- 流程：抓取源站 → `--self-check --strict` 自检（条目数、链接后缀、重复项）→ 有变化才提交
+- 失败即停：源站不可达会重试 3 次；自检不通过直接非零退出，**不会写入半截数据**，GitHub 会邮件通知你
+
+两个刻意的设计：
+
+1. **内容没变就不写快照**。`generatedAt` 每次都会变，如果无脑重写，每天都会产生一个 2.7 MB 的提交，一年能把仓库撑到几百 MB。脚本会比较 `cachechk` 与 `items`，一致就跳过。
+2. **但每天仍会提交一个几百字节的 `data/snapshot.status.json`**（`lastRun` / `changed`）。一是让页面能区分「数据多久没变」和「最后一次检查是什么时候」，避免明明每天在查却提示「快照已过期」；二是让仓库保持每天有提交，避免 GitHub 在 60 天无活动后自动停用定时任务。
+
+首次启用注意：仓库 Settings → Actions → General 里确认 Workflow permissions 允许读写（workflow 已声明 `permissions: contents: write`，若组织策略改成只读需要在这里放开）。
 
 ## 技术说明
 

@@ -1,0 +1,64 @@
+name: snapshot
+
+# 每 24 小时从 myqnap.org 抓一次仓库，重新生成 data/snapshot.json。
+# UTC 19:00 = 北京时间次日 03:00（源站在欧洲时区，这个点基本是它的低谷）。
+# 也支持在 Actions 页面手动 Run workflow。
+on:
+  schedule:
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+
+# 需要写权限才能把新快照提交回仓库；GitHub 现在默认给只读 token，必须显式声明。
+permissions:
+  contents: write
+
+# 避免手动触发与定时任务同时跑、互相覆盖提交。
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 生成快照
+        # --strict：自检不通过就非零退出，绝不写入半截数据
+        # --retries 3：Cloudflare 偶发 52x / 连接重置时自动重试
+        run: python tools/build_snapshot.py --self-check --strict --retries 3
+
+      - name: 写入任务摘要
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          snap = json.load(open("data/snapshot.json", encoding="utf-8"))
+          st = json.load(open("data/snapshot.status.json", encoding="utf-8"))
+          print("### 仓库快照")
+          print(f"- 条目数：**{snap['count']}**")
+          print(f"- cachechk：`{snap['cachechk']}`")
+          print(f"- 快照生成时间：`{snap['generatedAt']}`")
+          print(f"- 内容是否有变化：{'是，已提交' if st.get('changed') else '否，仅更新检查时间'}")
+          print("")
+          print("> 内容没变时不会重写 2.7 MB 的快照，只更新几百字节的 status 文件，避免仓库体积膨胀。")
+          PY
+
+      - name: 提交变更
+        run: |
+          git add data/snapshot.json data/snapshot.status.json
+          if git diff --cached --quiet; then
+            echo "没有任何变更，跳过提交"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(snapshot): 每日同步 $(date -u +%Y-%m-%d)"
+          git push || { git pull --rebase --autostash && git push; }

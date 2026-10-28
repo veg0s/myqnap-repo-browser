@@ -21,9 +21,11 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections import Counter
+from datetime import datetime, timezone
 
 REPO_URL = "https://myqnap.org/repo.xml"
 ARCH_FILE_RE = re.compile(r"_(x86_64|arm_64|arm-x41|arm-x19|arm-x31|x86)\.qpkg(?:\?|$)", re.I)
@@ -50,6 +52,22 @@ def fetch(url, timeout=90):
     elif enc not in ("identity", ""):
         raise SystemExit("源站返回了不支持的编码 %r，请改用 --local 下载后的 XML" % enc)
     return raw.decode("utf-8")
+
+
+def fetch_with_retries(url, timeout, retries):
+    """CI 里经常碰到 Cloudflare 偶发 52x / 连接重置，重试比让定时任务空跑一天划算。"""
+    last = None
+    for attempt in range(1, max(1, retries) + 1):
+        try:
+            return fetch(url, timeout)
+        except SystemExit:
+            raise
+        except Exception as exc:                      # noqa: BLE001 - 网络/HTTP 一律重试
+            last = exc
+            print("第 %d/%d 次下载失败：%s" % (attempt, retries, exc), file=sys.stderr)
+            if attempt < retries:
+                time.sleep(min(30, 4 * attempt))
+    raise SystemExit("源站连续 %d 次不可用，最后一次错误：%s" % (retries, last))
 
 
 def text_of(el, tag):
@@ -105,6 +123,30 @@ def build(root):
     return items, pid_arch
 
 
+def same_content(path, doc):
+    """items 与 cachechk 都没变就别重写：generatedAt 每次都不同，直接写会导致天天有大提交。"""
+    try:
+        with io.open(path, "r", encoding="utf-8") as fh:
+            old = json.load(fh)
+    except Exception:
+        return False
+    if old.get("v") != doc["v"] or old.get("cachechk") != doc["cachechk"]:
+        return False
+    if old.get("count") != doc["count"]:
+        return False
+    old_items = json.dumps(old.get("items"), ensure_ascii=False, separators=(",", ":"))
+    new_items = json.dumps(doc["items"], ensure_ascii=False, separators=(",", ":"))
+    return old_items == new_items
+
+
+def read_generated_at(path):
+    try:
+        with io.open(path, "r", encoding="utf-8") as fh:
+            return json.load(fh).get("generatedAt") or ""
+    except Exception:
+        return ""
+
+
 def self_check(items, pid_arch):
     problems = []
     if len(items) < 700:
@@ -130,8 +172,14 @@ def main():
     ap.add_argument("--url", default=REPO_URL)
     ap.add_argument("--local", help="本地 repo.xml 路径（跳过网络）")
     ap.add_argument("--out", default=os.path.join("data", "snapshot.json"))
+    ap.add_argument("--status-out", default=os.path.join("data", "snapshot.status.json"),
+                    help="每次运行都写的小状态文件（lastRun / changed），供页面显示最近检查时间；传空串则不写")
+    ap.add_argument("--force", action="store_true", help="即使内容未变也重写快照")
     ap.add_argument("--min-items", type=int, default=700)
+    ap.add_argument("--timeout", type=int, default=90, help="单次下载超时秒数")
+    ap.add_argument("--retries", type=int, default=3, help="下载失败重试次数（CI 建议 3）")
     ap.add_argument("--self-check", action="store_true")
+    ap.add_argument("--strict", action="store_true", help="自检有问题时不写文件、以非零码退出（CI 用）")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -141,7 +189,7 @@ def main():
         source = "file://" + os.path.abspath(args.local)
         print("读取本地：%s（%.1f MB）" % (args.local, len(xml_text.encode("utf-8")) / 1048576))
     else:
-        xml_text = fetch(args.url)
+        xml_text = fetch_with_retries(args.url, args.timeout, args.retries)
         source = args.url
         print("下载完成：%.1f MB" % (len(xml_text.encode("utf-8")) / 1048576))
 
@@ -151,6 +199,7 @@ def main():
 
     cachechk = text_of(root, "cachechk")
     items, pid_arch = build(root)
+    print("cachechk：%s" % (cachechk or "(无)"))
     print("条目：%d，platform：%d，pidArch：%d 个" % (
         len(items), sum(len(i["platforms"]) for i in items), len(pid_arch)))
 
@@ -160,8 +209,7 @@ def main():
     doc = {
         "v": 1,
         "source": source,
-        "generatedAt": __import__("datetime").datetime.now(
-            __import__("datetime").timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "generatedAt": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "cachechk": cachechk,
         "count": len(items),
         "pidArch": pid_arch,
@@ -180,6 +228,8 @@ def main():
                 print("  -", p)
             if len(problems) > 20:
                 print("  ...")
+            if args.strict:
+                raise SystemExit("--strict：自检未通过，已放弃写入")
         else:
             print("自检通过")
 
@@ -188,9 +238,30 @@ def main():
         return
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
-    with io.open(args.out, "w", encoding="utf-8") as fh:
-        fh.write(body)
-    print("已写入 %s（%.2f MB）" % (args.out, os.path.getsize(args.out) / 1048576))
+    changed = True
+    if not args.force and same_content(args.out, doc):
+        changed = False
+        print("内容与现有快照一致，未改写 %s（避免每天产生 2.7MB 的无意义提交）" % args.out)
+    else:
+        with io.open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(body)
+        print("已写入 %s（%.2f MB）" % (args.out, os.path.getsize(args.out) / 1048576))
+
+    # 瘦身状态文件：每次都写（几百字节），既能让页面知道「最近一次检查」时间，
+    # 也能让 CI 每天有一次提交，从而避免 GitHub 在 60 天无提交后自动停用定时任务。
+    if args.status_out:
+        status = {
+            "v": 1,
+            "lastRun": doc["generatedAt"],
+            "cachechk": cachechk,
+            "count": len(items),
+            "changed": changed,
+            "snapshotGeneratedAt": doc["generatedAt"] if changed else read_generated_at(args.out),
+        }
+        os.makedirs(os.path.dirname(args.status_out) or ".", exist_ok=True)
+        with io.open(args.status_out, "w", encoding="utf-8") as fh:
+            json.dump(status, fh, ensure_ascii=False, separators=(",", ":"))
+        print("状态：%s（changed=%s）" % (args.status_out, changed))
 
 
 if __name__ == "__main__":

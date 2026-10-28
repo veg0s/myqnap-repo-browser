@@ -768,6 +768,7 @@ body.is-dragover::after {
 const CFG = {
   REPO_URL: 'https://myqnap.org/repo.xml',
   SNAPSHOT_URL: 'data/snapshot.json',
+  SNAPSHOT_STATUS_URL: 'data/snapshot.status.json',
   IDB_NAME: 'mqrepo', IDB_VER: 1, IDB_STORE: 'blobs', IDB_KEY: 'repo.xml',
   LS_PREFS: 'mqrepo.prefs.v1',
   LS_META: 'mqrepo.cache.meta.v1',
@@ -1460,16 +1461,28 @@ async function saveCache(raw, source, pidArch) {
   writeMeta(ok ? { fetchedAt: now, cachechk: pack.cachechk, count: pack.count, source: source } : null);
   return ok;
 }
-/* 站点快照：同源、可被 CDN 缓存；404/损坏/版本不符一律静默降级 */
+/* 站点快照：同源、可被 CDN 缓存；404/损坏/版本不符一律静默降级。
+   snapshot.status.json 是 CI 每次运行都写的小文件（几百字节），用来区分「数据多久没变」与「最后一次检查」 */
 async function loadSnapshot() {
-  let res;
-  try {
-    res = await fetch(CFG.SNAPSHOT_URL, { cache: 'no-cache', credentials: 'omit' });
-  } catch (e) { return null; }
-  if (!res.ok) return null;
+  const [snapRes, statusRes] = await Promise.all([
+    fetch(CFG.SNAPSHOT_URL, { cache: 'no-cache', credentials: 'omit' }).catch(() => null),
+    fetch(CFG.SNAPSHOT_STATUS_URL, { cache: 'no-cache', credentials: 'omit' }).catch(() => null)
+  ]);
+  let checkedAt = 0;
+  if (statusRes && statusRes.ok) {
+    try {
+      const st = await statusRes.json();
+      checkedAt = Date.parse(st.lastRun) || 0;
+    } catch (e) { /* ignore */ }
+  }
+  if (!snapRes || !snapRes.ok) return null;
   let obj;
-  try { obj = await res.json(); } catch (e) { console.warn('[snapshot] JSON 解析失败', e); return null; }
-  try { return decodeDataset(obj); } catch (e) { console.warn('[snapshot]', e.message); return null; }
+  try { obj = await snapRes.json(); } catch (e) { console.warn('[snapshot] JSON 解析失败', e); return null; }
+  try {
+    const d = decodeDataset(obj);
+    d.checkedAt = checkedAt;
+    return d;
+  } catch (e) { console.warn('[snapshot]', e.message); return null; }
 }
 async function clearCache() {
   await idbDel(CFG.IDB_KEY);
@@ -1494,6 +1507,7 @@ const state = {
   bytesTotal: 0,
   expected: 0,
   snapshotAt: 0,
+  checkedAt: 0,
   pidArch: null,
   failedBatches: 0,
   q: '',
@@ -3117,13 +3131,15 @@ async function init() {
       const ds = buildDataset(snap.raw, { seed: snap.pidArch });
       applyDataset(ds, 'snapshot', snap.meta.fetchedAt || Date.now());
       state.snapshotAt = snap.meta.fetchedAt || 0;
+      state.checkedAt = snap.checkedAt || 0;
       state.expected = ds.items.length;
       renderSourceBadge();
       setBusy(false);
-      const age = Date.now() - (state.snapshotAt || 0);
+      /* 用「最后一次检查」算新鲜度：CI 每天都会写 status，数据没变也不该报「过期」 */
+      const age = Date.now() - (state.checkedAt || state.snapshotAt || 0);
       if (age > CFG.SNAPSHOT_WARN_DAYS * 86400000) {
         const days = Math.round(age / 86400000);
-        showNotice('内置数据生成于 ' + days + ' 天前，可能缺少新上架软件。点右侧按钮从源站刷新。',
+        showNotice('站点快照已 ' + days + ' 天没更新过，可能缺少新上架软件。点右侧按钮从源站刷新。',
           age > CFG.SNAPSHOT_MAX_DAYS * 86400000 ? 'error' : 'warn',
           { label: '刷新', act: 'retry' });
       }
