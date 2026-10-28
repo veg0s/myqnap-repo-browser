@@ -104,7 +104,11 @@ html[data-theme="dark"] {
    ============================================================ */
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { height: 100%; }
+/* 注意：这里必须是 min-height。
+   用 height:100% 会把 body 锁成一个视口高，而 sticky 的包含块就是 body，
+   于是滚过一屏后顶栏就“粘”到头被卷走了（旧版 bug）。 */
+html { min-height: 100%; }
+body { min-height: 100vh; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -196,7 +200,7 @@ a:hover { text-decoration: underline; }
    ============================================================ */
 .topbar {
   position: sticky; top: 0; z-index: 30;
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
   backdrop-filter: saturate(160%) blur(12px);
   border-bottom: 1px solid var(--border);
 }
@@ -417,7 +421,7 @@ mark { background: var(--accent-soft); color: var(--accent); border-radius: 3px;
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .table th, .table td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .table thead th {
-  position: sticky; top: 61px; z-index: 5;
+  position: sticky; top: var(--topbar-h, 63px); z-index: 5;
   background: var(--surface-2); font-size: 11.5px; font-weight: 700;
   color: var(--text-dim); letter-spacing: .03em; white-space: nowrap;
 }
@@ -2613,6 +2617,12 @@ function toggleSheet(open) {
     else sheet.setAttribute('open', '');
   } else if (sheet.open) sheet.close();
 }
+function syncTopbarHeight() {
+  const bar = document.querySelector('.topbar');
+  if (!bar) return;
+  const h = Math.round(bar.getBoundingClientRect().height);
+  if (h > 0) document.documentElement.style.setProperty('--topbar-h', h + 'px');
+}
 function bindEvents() {
   /* 搜索 */
   const input = $('#search-input');
@@ -2800,9 +2810,11 @@ function bindEvents() {
     }
   });
 
+  /* 顶栏高度会随窗口宽度换行而变化，实时同步给表头吸顶偏移 */
+  window.addEventListener('resize', debounce(syncTopbarHeight, 120));
+
   /* 拖放导入 */
-  const drop = e => {
-    e.preventDefault();
+  const drop = e => {    e.preventDefault();
     document.body.classList.remove('is-dragover');
     const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
     if (f) importFile(f);
@@ -3097,6 +3109,7 @@ async function init() {
   $('#btn-view-grid').classList.toggle('is-on', state.view === 'grid');
   $('#btn-view-table').classList.toggle('is-on', state.view === 'table');
   bindEvents();
+  syncTopbarHeight();
   setBusy(true, { pct: -1 });
   renderSkeleton();
   renderResultBar();
