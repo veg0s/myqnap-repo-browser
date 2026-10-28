@@ -2833,6 +2833,22 @@ function finishTransition(fn) {
   if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { fn(); return; }
   try { document.startViewTransition(fn); } catch (e) { fn(); }
 }
+/* 收尾全量重排时，把用户正在看的那张卡钉在原位（content-visibility 下不能算 delta，只能按元素定位） */
+function captureAnchor() {
+  const cards = $$('#list .card');
+  for (let i = 0; i < cards.length; i++) {
+    const r = cards[i].getBoundingClientRect();
+    if (r.bottom > 80) return { id: cards[i].dataset.id, offset: r.top };
+  }
+  return null;
+}
+function restoreAnchor(a) {
+  if (!a) return;
+  const el = document.querySelector('#list .card[data-id="' + a.id + '"]');
+  if (!el) return;
+  const delta = el.getBoundingClientRect().top - a.offset;
+  if (Math.abs(delta) > 1) window.scrollBy(0, delta);
+}
 
 let streamAbort = null;
 let progressRaf = 0;
@@ -2989,7 +3005,11 @@ async function loadStream(opts) {
     }
     const full = buildDataset({ cachechk: state.cachechk, items: allRaw }, { seed: null });
     state.streaming = false;
-    finishTransition(() => applyDataset(full, 'remote'));
+    const anchor = (window.scrollY || 0) > 8 ? captureAnchor() : null;
+    finishTransition(() => {
+      applyDataset(full, 'remote');
+      restoreAnchor(anchor);
+    });
     const ok = await saveCache({ cachechk: state.cachechk, items: allRaw }, 'remote', state.pidArch);
     hideNotice();
     toast('已载入 ' + full.items.length + ' 个条目' + (ok ? '' : '（缓存写入失败，本次会话有效）'));
