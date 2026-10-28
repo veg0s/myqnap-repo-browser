@@ -2,9 +2,9 @@
 
 浏览 [myqnap.org](https://www.myqnap.org/) 第三方 QNAP 软件仓库的纯静态网页：按架构/机型筛选、看版本与更新时间、拿安装包直链。**非官方项目**，与 QNAP 官方无关。
 
-在线地址：`https://<USER>.github.io/myqnap-repo-browser/`（把 `<USER>` 换成你的 GitHub 用户名）
+在线地址：<https://veg0s.github.io/myqnap-repo-browser/>
 
-[![snapshot](https://github.com/<USER>/myqnap-repo-browser/actions/workflows/snapshot.yml/badge.svg)](https://github.com/<USER>/myqnap-repo-browser/actions/workflows/snapshot.yml)
+[![snapshot](https://github.com/veg0s/myqnap-repo-browser/actions/workflows/snapshot.yml/badge.svg)](https://github.com/veg0s/myqnap-repo-browser/actions/workflows/snapshot.yml)
 
 ## 特性
 
@@ -76,12 +76,12 @@ git add data/snapshot.json && git commit -m "chore: 更新仓库快照" && git p
 2. 本地推送：
 
    ```bash
-   git remote add origin https://github.com/<USER>/myqnap-repo-browser.git
+   git remote add origin git@github.com:veg0s/myqnap-repo-browser.git   # SSH；换 HTTPS 需 token 带 workflow 作用域
    git push -u origin main
    ```
 
 3. 仓库 **Settings → Pages → Build and deployment**：Source 选 **`GitHub Actions`**（不是 Deploy from a branch）
-4. 到 **Actions → snapshot → Run workflow** 手动跑一次；跑完就能访问 `https://<USER>.github.io/myqnap-repo-browser/`
+4. 到 **Actions → snapshot → Run workflow** 手动跑一次；跑完就能访问 `https://veg0s.github.io/myqnap-repo-browser/`
 
 > 想改成「分支直发」也可以：Settings 里 Source 选 `Deploy from a branch` → `main` / `(root)`，效果一样能看，但那样线上的快照就是仓库里那份基线，不会每天更新，而且 `data/snapshot.json` 每次改动都会进历史。定时任务里的 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 三步需要删掉。
 
