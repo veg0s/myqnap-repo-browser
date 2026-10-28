@@ -1464,6 +1464,8 @@ async function saveCache(raw, source, pidArch) {
 /* 站点快照：同源、可被 CDN 缓存；404/损坏/版本不符一律静默降级。
    snapshot.status.json 是 CI 每次运行都写的小文件（几百字节），用来区分「数据多久没变」与「最后一次检查」 */
 async function loadSnapshot() {
+  /* file:// 下连本地文件都读不了（Origin: null 被拒），直接跳过，避免控制台刷 CORS 报错 */
+  if (location.protocol === 'file:') return null;
   const [snapRes, statusRes] = await Promise.all([
     fetch(CFG.SNAPSHOT_URL, { cache: 'no-cache', credentials: 'omit' }).catch(() => null),
     fetch(CFG.SNAPSHOT_STATUS_URL, { cache: 'no-cache', credentials: 'omit' }).catch(() => null)
