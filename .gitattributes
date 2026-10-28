@@ -1,0 +1,2 @@
+# 统一 LF：workflow 里的 shell 脚本被 CRLF 污染会在 Linux runner 上直接报 $'\r'
+* text=auto eol=lf
