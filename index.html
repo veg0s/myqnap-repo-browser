@@ -1,0 +1,3138 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="在线浏览 myqnap.org 第三方 QNAP 软件仓库：按架构与机型筛选，查看版本、更新时间、安装包直链，无需登录。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MyQNAP Repo">
+<meta property="og:title" content="MyQNAP Repo 软件浏览器">
+<meta property="og:description" content="按架构与机型筛选 myqnap.org 第三方仓库，查看版本、更新时间与安装包直链。">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231a6fe0'/%3E%3Cstop offset='1' stop-color='%236f4bd8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ctext x='32' y='44' font-family='system-ui,sans-serif' font-size='34' font-weight='700' fill='%23fff' text-anchor='middle'%3EQ%3C/text%3E%3C/svg%3E">
+<title>MyQNAP Repo 软件浏览器</title>
+<script>
+/* 首帧前应用主题，避免闪烁 */
+try {
+  var __p = JSON.parse(localStorage.getItem('mqrepo.prefs.v1') || '{}');
+  if (__p && __p.theme) document.documentElement.dataset.theme = __p.theme;
+} catch (e) {}
+</script>
+<style>
+/* ============================================================
+   00 TOKENS
+   ============================================================ */
+:root {
+  --bg: #f5f7f9;
+  --surface: #ffffff;
+  --surface-2: #f0f3f6;
+  --surface-3: #e8edf2;
+  --border: #e2e7ec;
+  --border-strong: #cfd7e0;
+  --text: #14181d;
+  --text-dim: #586373;
+  --text-mute: #8a94a2;
+  --accent: #1a6fe0;
+  --accent-fg: #ffffff;
+  --accent-soft: #e8f1ff;
+  --ok: #17795e;
+  --ok-soft: #e2f6ef;
+  --warn: #a46600;
+  --warn-soft: #fff3d9;
+  --danger: #c02b2b;
+  --danger-soft: #fdeceb;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .04);
+  --shadow-2: 0 8px 24px rgba(16, 24, 40, .1), 0 2px 6px rgba(16, 24, 40, .06);
+  --tap: 44px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light dark;
+}
+html[data-theme="dark"] {
+  --bg: #0e1116;
+  --surface: #161a21;
+  --surface-2: #1c222b;
+  --surface-3: #232b35;
+  --border: #262e3a;
+  --border-strong: #36404e;
+  --text: #e7ebf1;
+  --text-dim: #a3adbb;
+  --text-mute: #79838f;
+  --accent: #5f9dff;
+  --accent-fg: #08111f;
+  --accent-soft: #16273f;
+  --ok: #4ed3a4;
+  --ok-soft: #112b23;
+  --warn: #f0b34a;
+  --warn-soft: #2c2313;
+  --danger: #ff8080;
+  --danger-soft: #2e1a1a;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-2: 0 10px 28px rgba(0, 0, 0, .55);
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme="auto"] {
+    --bg: #0e1116;
+    --surface: #161a21;
+    --surface-2: #1c222b;
+    --surface-3: #232b35;
+    --border: #262e3a;
+    --border-strong: #36404e;
+    --text: #e7ebf1;
+    --text-dim: #a3adbb;
+    --text-mute: #79838f;
+    --accent: #5f9dff;
+    --accent-fg: #08111f;
+    --accent-soft: #16273f;
+    --ok: #4ed3a4;
+    --ok-soft: #112b23;
+    --warn: #f0b34a;
+    --warn-soft: #2c2313;
+    --danger: #ff8080;
+    --danger-soft: #2e1a1a;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-2: 0 10px 28px rgba(0, 0, 0, .55);
+  }
+}
+
+/* ============================================================
+   10 BASE
+   ============================================================ */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 { margin: 0; font-weight: 650; letter-spacing: -.01em; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.muted { color: var(--text-mute); }
+.dim { color: var(--text-dim); }
+.mono { font-family: var(--mono); font-size: 12px; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip {
+  position: fixed; left: 12px; top: -60px; z-index: 100;
+  background: var(--surface); color: var(--text); padding: 10px 14px;
+  border-radius: var(--radius); box-shadow: var(--shadow-2); transition: top .18s;
+}
+.skip:focus { top: 12px; }
+
+/* ============================================================
+   20 COMPONENTS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 36px; padding: 0 14px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--surface); color: var(--text);
+  font-weight: 550; font-size: 13px; white-space: nowrap;
+  transition: background .15s, border-color .15s, transform .06s;
+}
+.btn:hover { background: var(--surface-2); text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn--primary:hover { filter: brightness(1.06); background: var(--accent); }
+.btn--ghost { border-color: transparent; background: transparent; }
+.btn--ghost:hover { background: var(--surface-2); }
+.btn--sm { min-height: 30px; padding: 0 10px; font-size: 12.5px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn--danger-ghost { color: var(--danger); border-color: transparent; background: transparent; }
+
+.btn svg { width: 16px; height: 16px; flex: none; }
+.iconbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; padding: 0;
+  border: 1px solid transparent; border-radius: var(--radius);
+  background: transparent; color: var(--text-dim);
+  transition: background .15s, color .15s;
+}
+.iconbtn:hover { background: var(--surface-2); color: var(--text); }
+.iconbtn--sm { width: 28px; height: 28px; }
+.iconbtn svg { width: 18px; height: 18px; }
+.iconbtn.is-spinning svg { animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--text-dim);
+  font-size: 11.5px; font-weight: 550; white-space: nowrap;
+}
+.badge--ok { background: var(--ok-soft); color: var(--ok); }
+.badge--warn { background: var(--warn-soft); color: var(--warn); }
+.badge--accent { background: var(--accent-soft); color: var(--accent); }
+.badge--danger { background: var(--danger-soft); color: var(--danger); }
+
+.seg { display: inline-flex; padding: 2px; background: var(--surface-2); border-radius: var(--radius); }
+.seg__btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 32px; padding: 0; border: 0; border-radius: 7px;
+  background: transparent; color: var(--text-mute);
+}
+.seg__btn.is-on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+.seg__btn svg { width: 17px; height: 17px; }
+
+/* ============================================================
+   30 TOPBAR
+   ============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: saturate(160%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar__inner {
+  display: flex; align-items: center; gap: 16px;
+  max-width: 1680px; margin: 0 auto; padding: 10px 20px;
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 168px; }
+.brand__logo {
+  display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(150deg, var(--accent), #6f4bd8);
+  color: #fff; font-weight: 800; font-size: 16px; letter-spacing: -.03em;
+  box-shadow: var(--shadow-1);
+}
+.brand__text h1 { font-size: 15px; line-height: 1.2; }
+.brand__sub { display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 11.5px; color: var(--text-mute); }
+
+.search {
+  position: relative; flex: 1 1 auto; min-width: 0; max-width: 560px;
+  display: flex; align-items: center;
+}
+.search svg {
+  position: absolute; left: 11px; width: 16px; height: 16px;
+  color: var(--text-mute); pointer-events: none;
+}
+.search input {
+  width: 100%; height: 38px; padding: 0 34px 0 34px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  -webkit-appearance: none; appearance: none;
+}
+.search input::-webkit-search-cancel-button { display: none; }
+.search input:focus {
+  outline: none; border-color: var(--accent); background: var(--surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.search__clear {
+  position: absolute; right: 6px; width: 24px; height: 24px; padding: 0;
+  border: 0; border-radius: 50%; background: var(--surface-3); color: var(--text-dim);
+  font-size: 14px; line-height: 1;
+}
+.topbar__actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.only-mobile { display: none; }
+
+.progressbar {
+  height: 2px; background: transparent; overflow: hidden;
+}
+.progressbar::after {
+  content: ""; display: block; height: 100%; width: 34%;
+  background: var(--accent);
+  animation: indeterminate 1.15s ease-in-out infinite;
+}
+.progressbar[data-mode="determinate"]::after {
+  width: var(--p, 30%);
+  animation: none;
+  transform: none;
+  transition: width .2s linear;
+}
+.list { view-transition-name: mqlist; }
+@keyframes indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+
+/* ============================================================
+   40 NOTICE
+   ============================================================ */
+.notice {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 1680px; margin: 12px auto 0; padding: 9px 14px;
+  border: 1px solid var(--warn); border-radius: var(--radius);
+  background: var(--warn-soft); color: var(--text); font-size: 13px;
+  width: calc(100% - 40px);
+}
+.notice span { flex: 1 1 auto; }
+.notice[data-kind="error"] { border-color: var(--danger); background: var(--danger-soft); }
+
+/* ============================================================
+   50 LAYOUT
+   ============================================================ */
+.layout {
+  display: grid; grid-template-columns: 256px minmax(0, 1fr); gap: 28px;
+  max-width: 1680px; margin: 0 auto; padding: 20px 20px 72px;
+  align-items: start;
+}
+.sidebar { position: sticky; top: 78px; max-height: calc(100vh - 100px); overflow: auto; padding-right: 4px; }
+.content { min-width: 0; }
+body[data-phase="loading"] .sidebar,
+body[data-phase="error"] .sidebar { display: none; }
+body[data-phase="loading"] .layout,
+body[data-phase="error"] .layout { grid-template-columns: minmax(0, 1fr); }
+body[data-phase="error"] .resultbar,
+body[data-phase="loading"] .resultbar { display: none; }
+
+/* ============================================================
+   60 FACETS
+   ============================================================ */
+.facet { border-bottom: 1px solid var(--border); padding: 0 0 14px; margin-bottom: 14px; }
+.facet:last-child { border-bottom: 0; }
+.facet__title {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;
+}
+.facet__hint { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-mute); font-size: 11px; }
+.facet__search { width: 100%; height: 32px; margin-bottom: 8px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.facet__search:focus { outline: none; border-color: var(--accent); }
+.facet__list { display: flex; flex-direction: column; gap: 1px; }
+.check {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 30px; padding: 2px 6px; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 13px;
+}
+.check:hover { background: var(--surface-2); }
+.check input { width: 15px; height: 15px; accent-color: var(--accent); flex: none; margin: 0; }
+.check__label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.check__count { flex: none; font-size: 11.5px; color: var(--text-mute); font-variant-numeric: tabular-nums; }
+.facet__more {
+  margin-top: 4px; padding: 2px 6px; border: 0; background: none;
+  color: var(--accent); font-size: 12px;
+}
+.facet__note { font-size: 11.5px; color: var(--text-mute); line-height: 1.45; margin-top: 4px; }
+
+/* ============================================================
+   70 RESULTBAR + CHIPS
+   ============================================================ */
+.resultbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 14px; min-height: 40px;
+}
+.resultbar__left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.resultbar__right { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.result-count { font-weight: 650; font-size: 13.5px; white-space: nowrap; }
+.result-count em { font-style: normal; color: var(--accent); font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 4px 3px 9px; border: 1px solid var(--border-strong);
+  border-radius: 999px; background: var(--surface); color: var(--text-dim);
+  font-size: 12px; max-width: 260px;
+}
+.chip:hover { border-color: var(--accent); color: var(--text); }
+.chip__x { display: grid; place-items: center; width: 18px; height: 18px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--text-dim); font-size: 12px; line-height: 1; }
+.chip b { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sortwrap { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-dim); }
+.sortwrap select {
+  height: 32px; padding: 0 8px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--text);
+}
+
+/* ============================================================
+   80 CARD GRID
+   ============================================================ */
+.list--grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(292px, 1fr));
+  align-items: start;
+}
+.card {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); box-shadow: var(--shadow-1);
+  transition: box-shadow .16s, border-color .16s, transform .16s;
+  content-visibility: auto; contain-intrinsic-size: 190px;
+}
+.card:hover { box-shadow: var(--shadow-2); border-color: var(--border-strong); transform: translateY(-1px); }
+.card__head { display: flex; gap: 11px; min-width: 0; }
+.card__icon {
+  flex: none; width: 46px; height: 46px; border-radius: 10px;
+  object-fit: cover; background: var(--surface-2); border: 1px solid var(--border);
+  aspect-ratio: 1;
+}
+.img-fallback {
+  display: grid; place-items: center; flex: none;
+  width: 46px; height: 46px; border-radius: 10px;
+  background: var(--surface-3); color: var(--text-dim);
+  font-weight: 700; font-size: 17px; text-transform: uppercase;
+  border: 1px solid var(--border);
+}
+.img-fallback--lg { width: 64px; height: 64px; font-size: 24px; border-radius: 14px; }
+.card__id { min-width: 0; flex: 1 1 auto; }
+.card__title {
+  display: block; width: 100%; padding: 0; border: 0; background: none;
+  color: var(--text); text-align: left; font-weight: 650; font-size: 14.5px; line-height: 1.35;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.card__title:hover { color: var(--accent); }
+.card__sub { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 12px; color: var(--text-mute); min-width: 0; }
+.card__sub .ver { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+.card__desc {
+  font-size: 12.8px; color: var(--text-dim); line-height: 1.6;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  min-height: 3.9em; word-break: break-word;
+}
+.card__tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.card__foot {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border);
+  font-size: 11.5px; color: var(--text-mute);
+}
+.card__foot .btn { margin-left: auto; width: 30px; height: 30px; min-height: 0; padding: 0; }
+.card__foot .btn svg { width: 15px; height: 15px; }
+.tag {
+  display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 5px;
+  background: var(--surface-2); color: var(--text-dim); font-size: 11px; white-space: nowrap;
+}
+.tag--accent { background: var(--accent-soft); color: var(--accent); }
+.tag--ok { background: var(--ok-soft); color: var(--ok); }
+.tag--warn { background: var(--warn-soft); color: var(--warn); }
+mark { background: var(--accent-soft); color: var(--accent); border-radius: 3px; padding: 0 1px; }
+
+/* ============================================================
+   90 TABLE VIEW
+   ============================================================ */
+.list--table { display: block; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: clip; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table thead th {
+  position: sticky; top: 61px; z-index: 5;
+  background: var(--surface-2); font-size: 11.5px; font-weight: 700;
+  color: var(--text-dim); letter-spacing: .03em; white-space: nowrap;
+}
+.table thead th button {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit;
+}
+.table thead th .arrow { font-size: 9px; opacity: .5; }
+.table thead th[aria-sort] .arrow { opacity: 1; color: var(--accent); }
+.table tbody tr:hover { background: var(--surface-2); }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table .c-app { display: flex; align-items: center; gap: 9px; min-width: 200px; }
+.table .c-app img, .table .c-app .img-fallback { width: 26px; height: 26px; border-radius: 6px; font-size: 11px; }
+.table .c-app b { font-weight: 600; }
+.table .c-mono { font-family: var(--mono); font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+.table .c-num { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.table .c-act { text-align: right; white-space: nowrap; }
+
+/* ============================================================
+   100 STATES
+   ============================================================ */
+.state {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 56px 24px; text-align: center;
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.state__icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: var(--surface-2); color: var(--text-mute); }
+.state__icon svg { width: 22px; height: 22px; }
+.state h2 { font-size: 16px; }
+.state p { max-width: 620px; color: var(--text-dim); font-size: 13px; line-height: 1.65; }
+.state pre {
+  max-width: 100%; margin: 0; padding: 10px 12px; overflow: auto; text-align: left;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); white-space: pre-wrap; word-break: break-word;
+}
+.state__actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+.skeleton-card {
+  height: 190px; border-radius: var(--radius-lg);
+  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-2) 50%, var(--surface) 70%);
+  background-size: 260% 100%; border: 1px solid var(--border);
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+@keyframes shimmer { 0% { background-position: 130% 0; } 100% { background-position: -30% 0; } }
+
+/* ============================================================
+   110 DIALOGS
+   ============================================================ */
+.dialog {
+  padding: 0; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow-2);
+  max-height: 88vh;
+}
+.dialog::backdrop { background: rgba(12, 16, 22, .45); backdrop-filter: blur(2px); }
+.dialog--detail { width: min(920px, calc(100vw - 32px)); }
+.dialog--sheet { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: 16px 16px 0 0; max-height: 86vh; }
+.detail__head {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 18px 18px 14px; border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.detail__head .card__icon { width: 64px; height: 64px; border-radius: 14px; }
+.detail__titles { flex: 1 1 auto; min-width: 0; }
+.detail__titles h2 { font-size: 19px; line-height: 1.3; word-break: break-word; }
+.detail__meta { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 7px; font-size: 12px; color: var(--text-dim); align-items: center; }
+.detail__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.detail__body { padding: 4px 18px 20px; overflow: auto; }
+.detail__sec { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.detail__sec:last-child { border-bottom: 0; }
+.detail__sec > h3 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-mute); margin-bottom: 9px;
+}
+.kv { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 6px 12px; font-size: 12.5px; }
+.kv dt { color: var(--text-mute); }
+.kv dd { margin: 0; color: var(--text); word-break: break-word; }
+.kv dd a { word-break: break-all; }
+.desc { font-size: 13.5px; line-height: 1.75; color: var(--text-dim); word-break: break-word; }
+.desc h1, .desc h2, .desc h3, .desc h4, .desc h5, .desc h6 { color: var(--text); font-size: 14px; margin: 1em 0 .4em; }
+.desc p { margin: .6em 0; }
+.desc ul, .desc ol { margin: .5em 0; padding-left: 1.4em; }
+.desc li { margin: .2em 0; }
+.desc img { max-width: 100%; height: auto; border-radius: var(--radius-sm); margin: .4em 0; }
+.desc table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: .6em 0; }
+.desc th, .desc td { border: 1px solid var(--border); padding: 5px 8px; text-align: left; }
+.desc code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+.desc pre { background: var(--surface-2); padding: 10px 12px; border-radius: var(--radius-sm); overflow: auto; }
+.desc pre code { background: none; padding: 0; }
+.desc blockquote { margin: .6em 0; padding: .2em 12px; border-left: 3px solid var(--border-strong); color: var(--text-mute); }
+.desc hr { border: 0; border-top: 1px solid var(--border); margin: 1em 0; }
+.desc a { word-break: break-all; }
+.shot { display: block; max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); }
+
+.dl { display: flex; flex-direction: column; gap: 8px; }
+.dlrow {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.dlrow.is-invalid { opacity: .62; border-style: dashed; }
+.dlrow__main { min-width: 0; flex: 1 1 260px; }
+.dlrow__name { font-family: var(--mono); font-size: 12px; word-break: break-all; color: var(--text); }
+.dlrow__meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; font-size: 11.5px; color: var(--text-mute); align-items: center; }
+.dlrow__act { display: flex; gap: 6px; margin-left: auto; }
+.plat-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.plat-table th, .plat-table td { border-bottom: 1px solid var(--border); padding: 5px 8px; text-align: left; }
+.plat-table th { color: var(--text-mute); font-weight: 600; font-size: 11px; }
+.sheet__head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
+.sheet__body { padding: 14px 16px; overflow: auto; max-height: calc(86vh - 118px); }
+.sheet__foot { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); }
+.sheet__foot .btn { flex: 1 1 auto; min-height: 42px; }
+.dialog__close { flex: none; }
+
+/* ============================================================
+   120 TOAST
+   ============================================================ */
+#toast {
+  position: fixed; left: 50%; bottom: 22px; z-index: 90;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+  transform: translateX(-50%); pointer-events: none;
+}
+.toast {
+  padding: 9px 16px; border-radius: 999px;
+  background: var(--text); color: var(--bg);
+  font-size: 12.5px; box-shadow: var(--shadow-2);
+  animation: toastin .18s ease-out;
+}
+.toast--err { background: var(--danger); color: #fff; }
+@keyframes toastin { from { opacity: 0; transform: translateY(8px); } }
+
+/* ============================================================
+   125 DOWNLOAD PICKER
+   ============================================================ */
+.dialog--picker { width: min(620px, calc(100vw - 28px)); margin: auto; border-radius: var(--radius-lg); }
+.pick__hint { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+.pick__hint strong { color: var(--text); }
+.pick__group { border: 0; margin: 0 0 16px; padding: 0; }
+.pick__group > legend {
+  padding: 0; margin-bottom: 8px; font-size: 11.5px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--text-mute);
+}
+.pick__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick__chip {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 13px;
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--surface-2); font-size: 13px; cursor: pointer;
+}
+.pick__chip:hover { border-color: var(--accent); }
+.pick__chip input { margin: 0; accent-color: var(--accent); }
+.pick__chip:has(input:checked) {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600;
+}
+.pick__models { display: flex; flex-direction: column; gap: 1px; max-height: 210px; overflow: auto; margin-top: 4px; }
+.pick__list { display: flex; flex-direction: column; gap: 8px; }
+.pick__row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+}
+.pick__row:hover { border-color: var(--accent); text-decoration: none; }
+.pick__name { flex: 1 1 220px; min-width: 0; word-break: break-all; font-family: var(--mono); font-size: 12px; }
+.btn__count {
+  display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 999px; background: rgba(255, 255, 255, .3); font-size: 10.5px; font-weight: 700;
+}
+.card__foot .btn--count { width: auto; height: 30px; padding: 0 7px; gap: 3px; }
+.dlrow.is-match { border-color: var(--ok); box-shadow: inset 3px 0 0 var(--ok); }
+@media (max-width: 719px) {
+  .dialog--picker { width: 100%; margin: auto 0 0; border-radius: 16px 16px 0 0; }
+}
+
+/* ============================================================
+   130 RESPONSIVE
+   ============================================================ */
+@media (max-width: 1279px) {
+  .layout { grid-template-columns: 232px minmax(0, 1fr); gap: 20px; }
+}
+@media (max-width: 959px) {
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 14px 14px 64px; }
+  .sidebar { display: none; }
+  .only-mobile { display: inline-flex; }
+  .list--grid { grid-template-columns: repeat(auto-fill, minmax(264px, 1fr)); }
+  .topbar__inner { padding: 8px 14px; gap: 10px; }
+  .brand { min-width: 0; }
+  .brand__text h1 { font-size: 14px; }
+  .brand__sub { display: none; }
+  .notice { width: calc(100% - 28px); }
+}
+@media (max-width: 719px) {
+  .topbar__inner { flex-wrap: wrap; }
+  .search { order: 3; flex-basis: 100%; max-width: none; }
+  .topbar__actions { gap: 2px; }
+  #btn-import { padding: 0; width: 36px; }
+  #btn-import .lbl { display: none; }
+  .list--grid { grid-template-columns: minmax(0, 1fr); }
+  .resultbar__right { width: 100%; margin-left: 0; }
+  .sortwrap { flex: 1 1 auto; }
+  .sortwrap select { flex: 1 1 auto; }
+  .table thead th:nth-child(4), .table tbody td:nth-child(4),
+  .table thead th:nth-child(5), .table tbody td:nth-child(5) { display: none; }
+  .table thead th { position: static; }
+  .detail__head { padding: 14px; }
+  .detail__body { padding: 0 14px 18px; }
+  .kv { grid-template-columns: 96px minmax(0, 1fr); }
+  .dlrow__act { margin-left: 0; width: 100%; }
+  .dlrow__act .btn { flex: 1 1 auto; }
+}
+body.is-dragover::after {
+  content: "松开以导入 repo.xml";
+  position: fixed; inset: 12px; z-index: 200;
+  display: grid; place-items: center;
+  border: 2px dashed var(--accent); border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--accent-soft) 90%, transparent);
+  color: var(--accent); font-weight: 650; font-size: 15px;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important; animation: none !important; scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 479px) {
+  .brand__text { display: none; }
+  .brand { min-width: 0; }
+}
+</style>
+</head>
+<body data-view="grid">
+<a class="skip" href="#main">跳到主要内容</a>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <div class="brand__logo" aria-hidden="true">Q</div>
+      <div class="brand__text">
+        <h1>MyQNAP Repo</h1>
+        <div class="brand__sub">
+          <span class="badge" id="source-badge">加载中</span>
+          <span id="brand-count"></span>
+        </div>
+      </div>
+    </div>
+
+    <form class="search" id="search-form" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input id="search-input" type="search" placeholder="搜索名称、描述、维护者…" autocomplete="off" spellcheck="false" aria-label="搜索软件">
+      <button class="search__clear" id="search-clear" type="button" aria-label="清空搜索" hidden>×</button>
+    </form>
+
+    <div class="topbar__actions">
+      <div class="seg" role="group" aria-label="列表视图">
+        <button class="seg__btn is-on" id="btn-view-grid" aria-pressed="true" title="卡片视图">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        </button>
+        <button class="seg__btn" id="btn-view-table" aria-pressed="false" title="表格视图">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+        </button>
+      </div>
+      <button class="iconbtn only-mobile" id="btn-filter" aria-label="筛选条件" title="筛选">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M6 12h12M10 18h4"></path></svg>
+      </button>
+      <button class="iconbtn" id="btn-theme" aria-label="切换主题" title="主题：跟随系统">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+      <button class="iconbtn" id="btn-refresh" aria-label="刷新仓库数据" title="刷新仓库数据">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg>
+      </button>
+      <button class="btn btn--ghost" id="btn-import" title="导入本地 repo.xml">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:16px;height:16px"><path d="M12 16V4m0 0 4 4m-4-4-4 4"></path><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"></path></svg>
+        <span class="lbl">导入 XML</span>
+      </button>
+    </div>
+  </div>
+  <div class="progressbar" id="progressbar" hidden></div>
+</header>
+
+<div class="notice" id="notice" hidden>
+  <span id="notice-text"></span>
+  <button class="btn btn--sm" id="notice-action" hidden></button>
+  <button class="iconbtn iconbtn--sm" id="notice-close" aria-label="关闭提示">×</button>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="筛选条件"><div id="facets"></div></aside>
+  <main class="content" id="main">
+    <div class="resultbar">
+      <div class="resultbar__left">
+        <span class="result-count" id="result-count" aria-live="polite">正在加载…</span>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="resultbar__right">
+        <label class="sortwrap">排序
+          <select id="sort-select">
+            <option value="date">更新时间</option>
+            <option value="name">名称</option>
+            <option value="version">版本号</option>
+            <option value="devices">适用设备数</option>
+            <option value="downloads">安装包数</option>
+          </select>
+        </label>
+        <button class="iconbtn" id="btn-sortdir" title="切换升降序" aria-label="切换升降序">↓</button>
+        <button class="btn btn--ghost btn--sm" id="btn-clear" disabled>清空条件</button>
+      </div>
+    </div>
+    <section class="list list--grid" id="list" aria-label="软件列表"></section>
+    <div id="sentinel" aria-hidden="true"></div>
+    <div id="state-slot"></div>
+  </main>
+</div>
+
+<dialog class="dialog dialog--detail" id="detail-dialog" aria-labelledby="detail-title"></dialog>
+
+<dialog class="dialog dialog--sheet" id="filter-sheet" aria-label="筛选条件">
+  <div class="sheet__head">
+    <strong>筛选条件</strong>
+    <button class="iconbtn" id="sheet-close" aria-label="关闭筛选">×</button>
+  </div>
+  <div class="sheet__body" id="sheet-facets"></div>
+  <div class="sheet__foot">
+    <button class="btn btn--ghost" id="sheet-clear">清空</button>
+    <button class="btn btn--primary" id="sheet-apply">查看结果</button>
+  </div>
+</dialog>
+
+<dialog class="dialog dialog--sheet dialog--picker" id="picker-dialog" data-step="1" aria-labelledby="picker-title" aria-describedby="picker-hint">
+  <div class="sheet__head">
+    <strong id="picker-title" tabindex="-1">请先选择架构或机型</strong>
+    <button class="iconbtn" data-pick="close" aria-label="关闭">×</button>
+  </div>
+  <div class="sheet__body" id="picker-body" aria-live="polite"></div>
+  <div class="sheet__foot" id="picker-foot"></div>
+</dialog>
+
+<input type="file" id="file-input" accept=".xml,text/xml,application/xml" hidden>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+ * MyQNAP Repo 软件浏览器 — 单文件实现
+ * 目录：10 UTIL / 20 NORMALIZE / 30 PARSE / 40 DATA / 50 STATE /
+ *       60 SELECT / 70 RENDER / 80 SANITIZE / 90 EVENTS / 99 BOOT
+ * ========================================================================= */
+
+/* ===== 00 CONFIG ===== */
+const CFG = {
+  REPO_URL: 'https://myqnap.org/repo.xml',
+  SNAPSHOT_URL: 'data/snapshot.json',
+  IDB_NAME: 'mqrepo', IDB_VER: 1, IDB_STORE: 'blobs', IDB_KEY: 'repo.xml',
+  LS_PREFS: 'mqrepo.prefs.v1',
+  LS_META: 'mqrepo.cache.meta.v1',
+  LS_ITEMS: 'mqrepo.cache.items.v1',
+  BATCH_FIRST: 24,
+  BATCH_GRID: 48,
+  BATCH_TABLE: 120,
+  ROOT_MARGIN: '900px',
+  DEBOUNCE_Q: 160,
+  CACHE_TTL: 24 * 3600 * 1000,
+  SNAPSHOT_WARN_DAYS: 7,
+  SNAPSHOT_MAX_DAYS: 30,
+  STREAM_ITEMS: 60,
+  STREAM_MIN_ITEMS: 12,
+  STREAM_FLUSH_MS: 200,
+  STREAM_CARDS_MAX: 300,
+  CK_NAME: 'mqrepo_sel_v1',
+  CK_TTL: 31536000,
+  CK_MAX_LEN: 3000,
+  SEL_MAX_ARCHS: 12,
+  SEL_MAX_MODELS: 40,
+  MAX_FILE_BYTES: 20 * 1024 * 1024,
+  TYPE_GROUPS: {
+    'entertainment': 'Entertainment',
+    'entertainment gaming': 'Entertainment',
+    'hd entertainement': 'Entertainment',
+    'hds5 entertainment': 'Entertainment',
+    'quts hero6 -entertainment': 'Entertainment',
+    'quts hero6 - hdstation': 'Entertainment',
+    'hd games': 'Entertainment',
+    'utilities': 'Utilities',
+    'hd utils': 'Utilities',
+    'developer tools': 'Developer Tools',
+    'quts hero6 - dev tools': 'Developer Tools',
+    'system administration': 'System Administration',
+    'administration': 'System Administration',
+    'home automation': 'Home Automation',
+    'quts hero6 - automation': 'Home Automation',
+    'surveillance': 'Surveillance',
+    'cctv': 'Surveillance'
+  },
+  ARCH_LABEL: {
+    x86_64: 'x86_64', arm_64: 'arm_64', 'arm-x41': 'arm-x41',
+    'arm-x19': 'arm-x19', 'arm-x31': 'arm-x31',
+    x86_32: 'x86 32-bit', unknown: '未标注架构'
+  },
+  ARCH_ORDER: ['x86_64', 'arm_64', 'arm-x41', 'arm-x19', 'arm-x31', 'x86_32', 'unknown'],
+  TAG_ALLOW: ('p div br span hr ul ol li dl dt dd a strong b em i u s del ins code pre blockquote ' +
+    'h1 h2 h3 h4 h5 h6 table thead tbody tfoot tr th td caption figure figcaption img small sub sup').split(' '),
+  TAG_DROP: ('script style iframe frame frameset object embed applet link meta base form input button ' +
+    'select textarea svg math video audio source track canvas template noscript').split(' '),
+  ATTR_ALLOW: { a: ['href', 'title'], img: ['src', 'alt', 'width', 'height'], td: ['colspan', 'rowspan'], th: ['colspan', 'rowspan'] },
+  HREF_PROTO: ['http:', 'https:', 'mailto:'],
+  SRC_PROTO: ['http:', 'https:']
+};
+const FLAG_META = {
+  snapshot: '有截图',
+  forum: '有论坛链接',
+  download: '有可下载链接'
+};
+const SORT_LABELS = { date: '更新时间', name: '名称', version: '版本号', devices: '适用设备数', downloads: '安装包数' };
+
+/* ===== 10 UTIL ===== */
+const $ = (sel, root) => (root || document).querySelector(sel);
+const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function debounce(fn, wait) {
+  let t = 0;
+  return function () {
+    const args = arguments, self = this;
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(self, args), wait);
+  };
+}
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  const p = n => (n < 10 ? '0' + n : '' + n);
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function fmtRelative(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts;
+  if (diff < 60e3) return '刚刚';
+  if (diff < 3600e3) return Math.round(diff / 60e3) + ' 分钟前';
+  if (diff < 86400e3) return Math.round(diff / 3600e3) + ' 小时前';
+  return Math.round(diff / 86400e3) + ' 天前';
+}
+function shortNum(n) {
+  if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + ' 万';
+  return String(n);
+}
+function baseName(url) {
+  try {
+    const p = new URL(url).pathname.split('/');
+    return decodeURIComponent(p[p.length - 1] || url);
+  } catch (e) { return url.split('/').pop() || url; }
+}
+/* https 页面里 <img src="http://..."> 会被混合内容策略拦掉；图标/截图统一升到 https。
+   万一源站不支持 https 会 404，由捕获阶段的 error 兜底换成字母占位，退化结果与被拦一致。 */
+function httpsImg(u) {
+  const s = String(u || '').trim();
+  return /^http:\/\//i.test(s) ? 'https://' + s.slice(7) : s;
+}
+function toast(msg, kind) {
+  const box = $('#toast');
+  if (!box) return;
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind === 'err' ? ' toast--err' : '');
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2400);
+  setTimeout(() => el.remove(), 2800);
+}
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(() => true, () => fallbackCopy(text));
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  ta.remove();
+  return ok;
+}
+
+/* ==== IndexedDB 极简封装 ==== */
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) return reject(new Error('IndexedDB 不可用'));
+    const req = indexedDB.open(CFG.IDB_NAME, CFG.IDB_VER);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(CFG.IDB_STORE)) db.createObjectStore(CFG.IDB_STORE);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('IndexedDB 打开失败'));
+  });
+}
+async function idbSet(key, value) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(CFG.IDB_STORE, 'readwrite');
+    tx.objectStore(CFG.IDB_STORE).put(value, key);
+    tx.oncomplete = () => { db.close(); resolve(true); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  });
+}
+async function idbGet(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(CFG.IDB_STORE, 'readonly');
+    const req = tx.objectStore(CFG.IDB_STORE).get(key);
+    req.onsuccess = () => { db.close(); resolve(req.result || null); };
+    req.onerror = () => { db.close(); reject(req.error); };
+  });
+}
+async function idbDel(key) {
+  try {
+    const db = await idbOpen();
+    await new Promise(resolve => {
+      const tx = db.transaction(CFG.IDB_STORE, 'readwrite');
+      tx.objectStore(CFG.IDB_STORE).delete(key);
+      tx.oncomplete = () => { db.close(); resolve(); };
+      tx.onerror = () => { db.close(); resolve(); };
+    });
+  } catch (e) { /* ignore */ }
+}
+
+/* ===== 20 NORMALIZE ===== */
+function normText(s) {
+  return String(s == null ? '' : s)
+    .normalize('NFKC')
+    .replace(/[\u00a0\u3000]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function typeGroupOf(raw) {
+  const key = normText(raw).toLowerCase();
+  return CFG.TYPE_GROUPS[key] || normText(raw) || '未分类';
+}
+/* 18 种写法指向同一个旧 32 位包 */
+const LEGACY_32_RE = /OLD|32\s*-?\s*BIT/i;
+function normPid(raw) {
+  let s = normText(raw);
+  if (!s) return { pid: 'UNKNOWN', kind: 'model', arch: 'unknown' };
+  const upper = s.toUpperCase().replace(/\s+/g, ' ');
+  if (/X86/.test(upper) && LEGACY_32_RE.test(upper)) {
+    return { pid: 'X86_32_LEGACY', kind: 'arch', arch: 'x86_32', label: 'x86 32-bit（旧版机型）' };
+  }
+  let pid = upper.replace(/TS-NAS-?X86/, 'TS-NASX86').replace(/TS-NAS-?ARM-?64/, 'TS-NASARM_64').replace(/\s+/g, '');
+  if (pid === 'TS-NASX86') return { pid, kind: 'arch', arch: 'x86_64', label: 'x86_64 通用架构' };
+  if (pid === 'TS-NASARM_64') return { pid, kind: 'arch', arch: 'arm_64', label: 'arm_64 通用架构' };
+  return { pid, kind: 'model', arch: null };
+}
+const ARCH_FILE_RE = /_(x86_64|arm_64|arm-x41|arm-x19|arm-x31|x86)\.qpkg(?:$|\?)/i;
+function archFromLocation(url) {
+  const m = String(url || '').match(ARCH_FILE_RE);
+  if (!m) return '';
+  const a = m[1].toLowerCase();
+  return a === 'x86' ? 'x86_32' : a;
+}
+function parseVersion(v) {
+  const s = normText(v);
+  if (!s) return { kind: 2, parts: [], tier: 0, tail: '' };
+  const m = s.match(/^v?(\d+(?:\.\d+)*)(.*)$/i);
+  if (!m) return { kind: 1, parts: [], tier: 0, tail: s.toLowerCase() };
+  const tail = m[2].trim().replace(/^[-_.\s]+/, '').toLowerCase();
+  const tier = tail === '' ? 2 : (/^(a|alpha|b|beta|rc|pre|dev|test|snapshot)\b/.test(tail) ? 0 : 1);
+  return { kind: 0, parts: m[1].split('.').map(Number), tier, tail };
+}
+function cmpVersion(a, b) {
+  const x = a.vkey, y = b.vkey;
+  if (x.kind !== y.kind) return x.kind - y.kind;
+  if (x.kind === 2) return 0;
+  if (x.kind === 1) return x.tail < y.tail ? -1 : x.tail > y.tail ? 1 : 0;
+  const n = Math.max(x.parts.length, y.parts.length);
+  for (let i = 0; i < n; i++) {
+    const p = x.parts[i] || 0, q = y.parts[i] || 0;
+    if (p !== q) return p - q;
+  }
+  if (x.tier !== y.tier) return x.tier - y.tier;
+  return x.tail < y.tail ? -1 : x.tail > y.tail ? 1 : 0;
+}
+/* 下载链接校验：返回 {ok, reason, external} */
+function checkLocation(url) {
+  const s = String(url || '').trim();
+  if (!s) return { ok: false, reason: '链接为空' };
+  let u;
+  try { u = new URL(s); } catch (e) { return { ok: false, reason: '不是合法 URL' }; }
+  if (!/^https?:$/.test(u.protocol)) return { ok: false, reason: '协议不是 http(s)' };
+  if (!/\./.test(u.hostname) || /^(localhost|127\.0\.0\.1|0\.0\.0\.0|example\.com)$/i.test(u.hostname)) {
+    return { ok: false, reason: '域名不可用' };
+  }
+  const external = !/(^|\.)myqnap\.org$/i.test(u.hostname);
+  return { ok: true, reason: '', external };
+}
+
+/* ===== 30 PARSE ===== */
+class RepoError extends Error {
+  constructor(code, message, detail) {
+    super(message || '解析失败');
+    this.name = 'RepoError';
+    this.code = code || 'parse';
+    this.detail = detail || '';
+  }
+}
+function childText(parent, tag) {
+  for (let i = 0; i < parent.children.length; i++) {
+    if (parent.children[i].nodeName === tag) return parent.children[i].textContent || '';
+  }
+  return '';
+}
+function itemFromElement(el) {
+  const platforms = [];
+  for (let j = 0; j < el.children.length; j++) {
+    const p = el.children[j];
+    if (p.nodeName !== 'platform') continue;
+    platforms.push({
+      pidRaw: normText(childText(p, 'platformID')),
+      location: (childText(p, 'location') || '').trim(),
+      signature: normText(childText(p, 'signature'))
+    });
+  }
+  return {
+    name: normText(childText(el, 'name')) || '(未命名)',
+    internalName: normText(childText(el, 'internalName')),
+    changeLog: (childText(el, 'changeLog') || '').trim(),
+    category: normText(childText(el, 'category')),
+    type: normText(childText(el, 'type')),
+    icon80: (childText(el, 'icon80') || '').trim(),
+    icon100: (childText(el, 'icon100') || '').trim(),
+    description: childText(el, 'description') || '',
+    version: normText(childText(el, 'version')),
+    publishedDate: normText(childText(el, 'publishedDate')),
+    maintainer: normText(childText(el, 'maintainer')),
+    developer: normText(childText(el, 'developer')),
+    forumlink: (childText(el, 'forumlink') || '').trim(),
+    language: normText(childText(el, 'language')),
+    snapshot: (childText(el, 'snapshot') || '').trim(),
+    bannerImg: (childText(el, 'bannerImg') || '').trim(),
+    tutorialLink: (childText(el, 'tutorialLink') || '').trim(),
+    platforms: platforms
+  };
+}
+function parseRepoXml(text) {
+  if (!text || !String(text).trim()) throw new RepoError('empty', '文件内容为空', '选中的文件没有任何内容。');
+  let doc;
+  try {
+    doc = new DOMParser().parseFromString(String(text), 'text/xml');
+  } catch (e) {
+    throw new RepoError('parse', 'XML 解析失败', String(e && e.message || e));
+  }
+  const perr = doc.getElementsByTagName('parsererror')[0];
+  if (perr) {
+    throw new RepoError('parse', 'XML 语法错误', normText(perr.textContent || '').slice(0, 400));
+  }
+  const root = doc.documentElement;
+  if (!root) throw new RepoError('parse', 'XML 为空文档', '没有找到根元素。');
+  if (root.nodeName.toLowerCase() !== 'plugins') {
+    throw new RepoError('root', '这不是 MyQNAP 仓库文件',
+      '根元素应为 <plugins>，实际为 <' + root.nodeName + '>。可能下载到的是网页（HTML）而不是 XML 文件。');
+  }
+
+  const cachechk = normText(childText(root, 'cachechk'));
+  const rawItems = [];
+  for (let i = 0; i < root.children.length; i++) {
+    const el = root.children[i];
+    if (el.nodeName !== 'item') continue;
+    rawItems.push(itemFromElement(el));
+  }
+  if (!rawItems.length) {
+    throw new RepoError('noitems', '仓库中没有任何软件条目',
+      'XML 里没有找到 <item> 节点，源站的数据格式可能已经变更，或者这个文件被截断了。');
+  }
+  return { cachechk: cachechk, items: rawItems };
+}
+
+/* ---- 流式切片：只认 </item> 边界（本数据集 6552 段 CDATA 内已确认 0 处出现）----
+   不变式：body 以 </item> 结尾、rest 内不含完整 </item>；body 已剥掉 prolog / <plugins> / <cachechk>。 */
+function pickCompleteItems(buf) {
+  const end = buf.lastIndexOf('</item>');
+  if (end < 0) return { body: '', rest: buf, n: 0 };
+  const rest = buf.slice(end + 7);
+  let body = buf.slice(0, end + 7);
+  const head = body.search(/<item[\s>]/);
+  if (head < 0) return { body: '', rest: rest, n: 0 };
+  body = body.slice(head);
+  let n = 0;
+  for (let i = body.indexOf('</item>'); i >= 0; i = body.indexOf('</item>', i + 1)) n++;
+  return { body: body, rest: rest, n: n };
+}
+/* 单批解析；任一条目不完整/解析失败 → 返回 null（整批作废，绝不跳批，跳批会静默丢条目） */
+function parseItemBatch(body, expect) {
+  if (!body) return [];
+  let doc;
+  try { doc = new DOMParser().parseFromString('<plugins>' + body + '</plugins>', 'text/xml'); }
+  catch (e) { return null; }
+  if (doc.getElementsByTagName('parsererror')[0]) return null;
+  const root = doc.documentElement;
+  const out = [];
+  for (let i = 0; i < root.children.length; i++) {
+    if (root.children[i].nodeName === 'item') out.push(itemFromElement(root.children[i]));
+  }
+  if (expect != null && out.length !== expect) return null;
+  return out;
+}
+
+/* ===== 40 NORMALIZE -> DATASET ===== */
+function buildDataset(raw, opts) {
+  opts = opts || {};
+  const rawItems = raw.items || [];
+  const idBase = opts.idBase || 0;
+  const votes = new Map();      // 归一 pid -> Map(arch -> 次数)
+  const parsed = new Array(rawItems.length);
+
+  /* 种子：上次全量跑出的 pidArch 先垫 1 票，真实票叠加其上（同票时种子胜出，避免 1 条离群样本翻盘） */
+  if (opts.seed) {
+    for (const pid in opts.seed) {
+      if (!opts.seed[pid]) continue;
+      const m = new Map();
+      m.set(opts.seed[pid], 1);
+      votes.set(pid, m);
+    }
+  }
+
+  /* 第一遍：收集平台原始数据，顺带统计每个 pid 的架构投票 */
+  for (let i = 0; i < rawItems.length; i++) {
+    const r = rawItems[i];
+    const plats = [];
+    for (let k = 0; k < (r.platforms || []).length; k++) {
+      const p = r.platforms[k];
+      const np = normPid(p.pidRaw);
+      const fileArch = archFromLocation(p.location);
+      plats.push({ pid: np.pid, pidRaw: p.pidRaw, kind: np.kind, label: np.label || '', pidArch: np.arch, fileArch: fileArch, location: p.location, signature: p.signature });
+      if (fileArch) {
+        if (!votes.has(np.pid)) votes.set(np.pid, new Map());
+        const m = votes.get(np.pid);
+        m.set(fileArch, (m.get(fileArch) || 0) + 1);
+      }
+    }
+    parsed[i] = { r: r, plats: plats };
+  }
+  const pidProfile = new Map();
+  votes.forEach((m, pid) => {
+    let best = '', bestN = 0;
+    m.forEach((n, a) => { if (n > bestN) { best = a; bestN = n; } });
+    pidProfile.set(pid, best);
+  });
+
+  /* 第二遍：构建最终数据模型 */
+  const items = new Array(rawItems.length);
+  for (let i = 0; i < parsed.length; i++) {
+    const r = parsed[i].r;
+    const plats = parsed[i].plats;
+    const seen = new Set();
+    const platformIds = [], modelIds = [], archSeen = [];
+    const groups = new Map();
+
+    for (let k = 0; k < plats.length; k++) {
+      const p = plats[k];
+      const arch = p.fileArch || pidProfile.get(p.pid) || p.pidArch || 'unknown';
+      p.arch = arch;
+      const sig = p.pid + '|' + p.location;
+      if (!seen.has(sig)) {
+        seen.add(sig);
+        if (platformIds.indexOf(p.pid) < 0) platformIds.push(p.pid);
+        if (p.kind === 'model' && modelIds.indexOf(p.pid) < 0) modelIds.push(p.pid);
+        if (archSeen.indexOf(arch) < 0) archSeen.push(arch);
+      }
+      let g = groups.get(p.location);
+      if (!g) {
+        g = { location: p.location, signature: p.signature || '', pids: [], archs: [] };
+        groups.set(p.location, g);
+      }
+      if (!g.signature && p.signature) g.signature = p.signature;
+      if (g.pids.indexOf(p.pid) < 0) g.pids.push(p.pid);
+      if (g.archs.indexOf(arch) < 0) g.archs.push(arch);
+    }
+
+    const dlGroups = [];
+    groups.forEach(g => {
+      const chk = checkLocation(g.location);
+      dlGroups.push({
+        location: g.location, signature: g.signature, pids: g.pids, archs: g.archs,
+        n: g.pids.length, valid: chk.ok, invalidReason: chk.reason, external: !!chk.external
+      });
+    });
+    dlGroups.sort((a, b) => {
+      const ra = rankGroup(a), rb = rankGroup(b);
+      if (ra !== rb) return ra - rb;
+      if (b.n !== a.n) return b.n - a.n;
+      return a.location < b.location ? -1 : 1;
+    });
+
+    const descText = htmlToText(r.description);
+    const ts = Date.parse((r.publishedDate || '').replace(' ', 'T')) || 0;
+    const archSet = archSeen.length ? archSeen.sort((a, b) => CFG.ARCH_ORDER.indexOf(a) - CFG.ARCH_ORDER.indexOf(b)) : ['unknown'];
+    const item = {
+      id: idBase + i,
+      name: r.name,
+      internalName: r.internalName,
+      typeRaw: r.type,
+      typeGroup: typeGroupOf(r.type),
+      category: r.category,
+      language: r.language,
+      version: r.version,
+      vkey: parseVersion(r.version),
+      dateRaw: r.publishedDate,
+      ts: ts,
+      year: ts ? new Date(ts).getFullYear() : 0,
+      maintainer: r.maintainer,
+      developer: r.developer,
+      icon: httpsImg(r.icon100 || r.icon80),
+      icon80: httpsImg(r.icon80),
+      icon100: httpsImg(r.icon100),
+      snapshot: httpsImg(r.snapshot),
+      bannerImg: httpsImg(r.bannerImg),
+      changeLog: r.changeLog,
+      forumLink: r.forumlink,
+      tutorialLink: r.tutorialLink,
+      descRaw: r.description,
+      descText: descText,
+      summary: makeSummary(descText, 180),
+      platforms: plats,
+      platformIds: platformIds,
+      modelIds: modelIds,
+      archSet: archSet,
+      downloadGroups: dlGroups,
+      hasValidDownload: dlGroups.some(g => g.valid),
+      hasSnapshot: !!r.snapshot,
+      hasForum: !!r.forumlink,
+      descSafe: null
+    };
+    item.searchText = [
+      item.name, item.internalName, item.version, item.typeRaw, item.typeGroup,
+      item.maintainer, item.developer, platformIds.join(' '), descText
+    ].join(' ').toLowerCase();
+    items[i] = item;
+  }
+
+  const pidArch = {};
+  pidProfile.forEach((v, k) => { if (v) pidArch[k] = v; });
+  return { items: items, cachechk: raw.cachechk || '', facets: buildFacets(items), pidArch: pidArch };
+}
+function rankGroup(g) {
+  if (g.pids.indexOf('TS-NASX86') >= 0) return 0;
+  if (g.pids.indexOf('TS-NASARM_64') >= 0) return 1;
+  return 2;
+}
+
+/* ===== 40 DATA（加载 / 缓存） ===== */
+function readPrefs() {
+  try { return JSON.parse(localStorage.getItem(CFG.LS_PREFS) || '{}') || {}; } catch (e) { return {}; }
+}
+function savePrefs() {
+  try {
+    localStorage.setItem(CFG.LS_PREFS, JSON.stringify({
+      theme: state.theme, view: state.view, sortKey: state.sortKey, sortDir: state.sortDir,
+      archs: Array.from(state.archs), models: Array.from(state.models), selAt: selAt
+    }));
+  } catch (e) { /* ignore */ }
+}
+
+/* ---- 架构/机型选择：cookie + localStorage 双写 ----
+   file:// 下 Chrome 会把 document.cookie 静默丢弃（不抛错），只能靠 localStorage 兜底；
+   https 下两者都有，用毫秒时间戳裁决谁更新，避免互相覆盖。 */
+function readCookie(name) {
+  const re = new RegExp('(?:^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)');
+  const m = document.cookie.match(re);
+  return m ? decodeURIComponent(m[1]) : '';
+}
+function writeCookie(name, val) {
+  try {
+    const secure = location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = name + '=' + encodeURIComponent(val) + '; Path=/; Max-Age=' + CFG.CK_TTL + '; SameSite=Lax' + secure;
+  } catch (e) { /* ignore */ }
+}
+function cleanId(v) { return String(v || '').replace(/[^A-Za-z0-9_.\-]/g, '').slice(0, 32); }
+function encodeSel(at, archs, models) {
+  let a = (archs || []).slice(0, CFG.SEL_MAX_ARCHS).map(cleanId).filter(Boolean);
+  let m = (models || []).slice(0, CFG.SEL_MAX_MODELS).map(cleanId).filter(Boolean);
+  const build = () => 'v1|at=' + at + '|a=' + a.join(',') + '|m=' + m.join(',');
+  let s = build();
+  while (s.length > CFG.CK_MAX_LEN && m.length) { m.pop(); s = build(); }
+  if (s.length > CFG.CK_MAX_LEN) { m = []; s = 'v1|at=' + at + '|a=' + a.join(',') + '|m='; }
+  return s;
+}
+function parseSel(s) {
+  if (!s || s.indexOf('v1|') !== 0) return null;
+  const kv = {};
+  s.slice(3).split('|').forEach(part => {
+    const i = part.indexOf('=');
+    if (i < 1) return;
+    kv[part.slice(0, i)] = part.slice(i + 1);
+  });
+  if (!kv.at) return null;
+  const list = t => String(t || '').split(',').map(cleanId).filter(Boolean);
+  return { at: Number(kv.at) || 0, archs: list(kv.a), models: list(kv.m) };
+}
+function readSelection(p) {
+  p = p || {};
+  const lsAt = Number(p.selAt) || 0;
+  const lsArchs = Array.isArray(p.archs) ? p.archs.map(cleanId).filter(Boolean) : [];
+  const lsModels = Array.isArray(p.models) ? p.models.map(cleanId).filter(Boolean) : [];
+  const ck = parseSel(readCookie(CFG.CK_NAME));
+  if (ck && ck.at > lsAt) return { at: ck.at, archs: ck.archs, models: ck.models, from: 'cookie' };
+  if (lsAt && (lsArchs.length || lsModels.length) && (!ck || ck.at < lsAt)) {
+    writeCookie(CFG.CK_NAME, encodeSel(lsAt, lsArchs, lsModels));   // 自愈回写（file:// 下静默失败）
+  }
+  return { at: lsAt, archs: lsArchs, models: lsModels, from: lsAt ? 'ls' : 'none' };
+}
+function saveSelection() {
+  selAt = Date.now();
+  savePrefs();
+  writeCookie(CFG.CK_NAME, encodeSel(selAt, Array.from(state.archs), Array.from(state.models)));
+}
+function pruneSelection() {
+  if (!state.facets) return;
+  const okA = new Set(state.facets.archs.map(e => e[0]));
+  const okM = new Set(state.facets.models.map(e => e[0]));
+  let drop = 0;
+  state.archs.forEach(v => { if (!okA.has(v)) { state.archs.delete(v); drop++; } });
+  state.models.forEach(v => { if (!okM.has(v)) { state.models.delete(v); drop++; } });
+  if (!drop) return;
+  if (state.models.size) state.modelExpanded = true;
+  saveSelection();
+  toast('已忽略 ' + drop + ' 个在新数据中不存在的筛选条件');
+}
+function readMeta() {
+  try { return JSON.parse(localStorage.getItem(CFG.LS_META) || 'null'); } catch (e) { return null; }
+}
+function writeMeta(meta) {
+  try { localStorage.setItem(CFG.LS_META, JSON.stringify(meta)); } catch (e) { /* ignore */ }
+}
+async function fetchRepoText(force) {
+  const url = CFG.REPO_URL + (force ? '?_ts=' + Date.now() : '');
+  let res;
+  try {
+    res = await fetch(url, { cache: 'no-store', mode: 'cors', credentials: 'omit' });
+  } catch (e) {
+    throw new RepoError('network', '无法连接仓库服务器',
+      '请求 ' + CFG.REPO_URL + ' 失败：' + (e && e.message ? e.message : 'Failed to fetch') +
+      '。可能是网络中断，或被防火墙、代理、广告拦截插件阻断；也可以导入本地 repo.xml 离线浏览。');
+  }
+  if (!res.ok) {
+    throw new RepoError('http', '仓库服务器返回错误',
+      'HTTP ' + res.status + ' ' + (res.statusText || '') + '（' + CFG.REPO_URL + '）');
+  }
+  const text = await res.text();
+  if (!text || text.length < 100) throw new RepoError('empty', '仓库返回了空内容', 'HTTP 200 但响应体为空。');
+  return text;
+}
+async function readLocalFile(file) {
+  if (!file) throw new RepoError('file', '没有选择文件');
+  if (file.size > CFG.MAX_FILE_BYTES) {
+    throw new RepoError('toolarge', '文件过大',
+      '文件 ' + (file.size / 1024 / 1024).toFixed(1) + ' MB，超过 ' + (CFG.MAX_FILE_BYTES / 1024 / 1024) + ' MB 上限，请确认选中的是 repo.xml。');
+  }
+  try { return await file.text(); } catch (e) { throw new RepoError('file', '读取文件失败', String(e && e.message || e)); }
+}
+/* ---- 数据集编解码：IDB 缓存 / 站点快照 / 本地导入共用同一 schema(v1) ---- */
+function toSnapItem(r) {
+  return {
+    name: r.name, internalName: r.internalName, version: r.version,
+    publishedDate: r.publishedDate, type: r.type, category: r.category, language: r.language,
+    maintainer: r.maintainer, developer: r.developer,
+    changeLog: r.changeLog, forumlink: r.forumlink, snapshot: r.snapshot,
+    icon80: r.icon80, icon100: r.icon100, bannerImg: r.bannerImg, tutorialLink: r.tutorialLink,
+    description: r.description,
+    platforms: (r.platforms || []).map(p => [p.pidRaw, p.location, p.signature || ''])
+  };
+}
+function fromSnapItem(o) {
+  return {
+    name: o.name || '(未命名)', internalName: o.internalName || '',
+    changeLog: o.changeLog || '', category: o.category || '', type: o.type || '',
+    icon80: o.icon80 || '', icon100: o.icon100 || '', description: o.description || '',
+    version: o.version || '', publishedDate: o.publishedDate || '',
+    maintainer: o.maintainer || '', developer: o.developer || '',
+    forumlink: o.forumlink || '', language: o.language || '',
+    snapshot: o.snapshot || '', bannerImg: o.bannerImg || '', tutorialLink: o.tutorialLink || '',
+    platforms: (o.platforms || []).map(p => ({ pidRaw: p[0] || '', location: p[1] || '', signature: p[2] || '' }))
+  };
+}
+function encodeDataset(raw, source, pidArch, fetchedAt) {
+  return {
+    v: 1, source: source || '', generatedAt: new Date(fetchedAt || Date.now()).toISOString(),
+    cachechk: raw.cachechk || '', count: raw.items.length,
+    pidArch: pidArch || null,
+    items: raw.items.map(toSnapItem)
+  };
+}
+function decodeDataset(o) {
+  if (!o || o.v !== 1) throw new RepoError('schema', '数据格式版本不兼容');
+  if (!Array.isArray(o.items) || !o.items.length) throw new RepoError('schema', '数据集为空');
+  return {
+    raw: { cachechk: o.cachechk || '', items: o.items.map(fromSnapItem) },
+    meta: { fetchedAt: Date.parse(o.generatedAt) || 0, count: o.count || o.items.length, source: o.source || '', cachechk: o.cachechk || '' },
+    pidArch: o.pidArch || null
+  };
+}
+async function loadCache() {
+  try {
+    const rec = await idbGet(CFG.IDB_KEY);
+    if (rec && rec.v === 1 && rec.items) {
+      const d = decodeDataset(rec);
+      if (rec.fetchedAt) d.meta.fetchedAt = rec.fetchedAt;
+      return d;
+    }
+    if (rec && rec.text) {   /* 旧版缓存（整份 XML）仍可用 */
+      return { raw: parseRepoXml(rec.text), meta: { fetchedAt: rec.fetchedAt || 0, source: rec.source || 'cache', count: rec.count || 0 }, pidArch: null };
+    }
+  } catch (e) { /* IDB 不可用，走降级 */ }
+  try {
+    const s = localStorage.getItem(CFG.LS_ITEMS);
+    if (s) return decodeDataset(JSON.parse(s));
+  } catch (e) { /* ignore */ }
+  return null;
+}
+async function saveCache(raw, source, pidArch) {
+  const now = Date.now();
+  const pack = encodeDataset(raw, source, pidArch, now);
+  let ok = false;
+  try {
+    await idbSet(CFG.IDB_KEY, Object.assign({}, pack, { fetchedAt: now }));
+    ok = true;
+  } catch (e) { /* 降到 localStorage */ }
+  if (!ok) {
+    try {
+      const slim = Object.assign({}, pack, {
+        items: pack.items.map(it => Object.assign({}, it, { description: String(it.description || '').slice(0, 600) }))
+      });
+      localStorage.setItem(CFG.LS_ITEMS, JSON.stringify(slim));
+      ok = true;
+    } catch (e) { /* 容量不足，纯内存运行 */ }
+  }
+  writeMeta(ok ? { fetchedAt: now, cachechk: pack.cachechk, count: pack.count, source: source } : null);
+  return ok;
+}
+/* 站点快照：同源、可被 CDN 缓存；404/损坏/版本不符一律静默降级 */
+async function loadSnapshot() {
+  let res;
+  try {
+    res = await fetch(CFG.SNAPSHOT_URL, { cache: 'no-cache', credentials: 'omit' });
+  } catch (e) { return null; }
+  if (!res.ok) return null;
+  let obj;
+  try { obj = await res.json(); } catch (e) { console.warn('[snapshot] JSON 解析失败', e); return null; }
+  try { return decodeDataset(obj); } catch (e) { console.warn('[snapshot]', e.message); return null; }
+}
+async function clearCache() {
+  await idbDel(CFG.IDB_KEY);
+  try { localStorage.removeItem(CFG.LS_ITEMS); localStorage.removeItem(CFG.LS_META); } catch (e) { /* ignore */ }
+}
+
+/* ===== 50 STATE ===== */
+const prefs = readPrefs();
+/* 恢复必须在这里（不能放 init：setTheme 内部会 savePrefs 落盘，晚恢复会被空值覆盖） */
+const SEL = readSelection(prefs);
+let selAt = SEL.at || 0;
+const state = {
+  phase: 'idle',          // idle | loading | ready | error
+  items: [],
+  facets: null,
+  cachechk: '',
+  loadedAt: 0,
+  source: '',             // remote | snapshot | file | cache | memory
+  streaming: false,
+  partial: false,
+  bytes: 0,
+  bytesTotal: 0,
+  expected: 0,
+  snapshotAt: 0,
+  pidArch: null,
+  failedBatches: 0,
+  q: '',
+  types: new Set(),
+  archs: new Set(SEL.archs || []),
+  models: new Set(SEL.models || []),
+  maintainers: new Set(),
+  years: new Set(),
+  flags: new Set(),
+  sortKey: prefs.sortKey || 'date',
+  sortDir: prefs.sortDir || 'desc',
+  view: prefs.view === 'table' ? 'table' : 'grid',
+  theme: prefs.theme || 'auto',
+  filtered: [],
+  offset: 0,
+  modelQuery: '',
+  modelExpanded: (SEL.models || []).length > 0,
+  typeExpanded: false,
+  error: null,
+  lastErrorKind: ''
+};
+function commit() {
+  const active = state.phase === 'ready' || (state.phase === 'loading' && state.items.length > 0);
+  if (active) {
+    state.filtered = sortItems(applyFilters());
+    state.offset = 0;
+  }
+  renderAll();
+  /* 筛选变化后同步详情里下载按钮的口径 */
+  const dlg = $('#detail-dialog');
+  if (active && dlg && dlg.open && dlg.__itemId != null) {
+    const it = state.items.find(x => x.id === dlg.__itemId);
+    if (it) renderDetail(it);
+  }
+}
+function setQuery(q) {
+  state.q = q;
+  const input = $('#search-input');
+  if (input && input.value !== q) input.value = q;
+  const clr = $('#search-clear');
+  if (clr) clr.hidden = !q;
+  commit();
+}
+function toggleFacet(key, value) {
+  const set = state[key];
+  if (!set) return;
+  if (set.has(value)) set.delete(value); else set.add(value);
+  commit();
+  if (key === 'archs' || key === 'models') saveSelection();
+}
+function setSort(key) {
+  if (state.sortKey === key) {
+    state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.sortKey = key;
+    state.sortDir = (key === 'name') ? 'asc' : 'desc';
+  }
+  savePrefs();
+  commit();
+}
+function setSortDir(dir) {
+  state.sortDir = dir;
+  savePrefs();
+  commit();
+}
+function clearFilters() {
+  state.q = '';
+  ['types', 'archs', 'models', 'maintainers', 'years', 'flags'].forEach(k => state[k].clear());
+  state.modelQuery = '';
+  const input = $('#search-input');
+  if (input) input.value = '';
+  const clr = $('#search-clear');
+  if (clr) clr.hidden = true;
+  closeDetail();
+  commit();
+  saveSelection();
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+function setView(view) {
+  state.view = view === 'table' ? 'table' : 'grid';
+  savePrefs();
+  document.body.dataset.view = state.view;
+  $('#btn-view-grid').classList.toggle('is-on', state.view === 'grid');
+  $('#btn-view-table').classList.toggle('is-on', state.view === 'table');
+  $('#btn-view-grid').setAttribute('aria-pressed', String(state.view === 'grid'));
+  $('#btn-view-table').setAttribute('aria-pressed', String(state.view === 'table'));
+  commit();
+}
+function setTheme(theme) {
+  state.theme = theme;
+  document.documentElement.dataset.theme = theme;
+  const btn = $('#btn-theme');
+  const label = theme === 'auto' ? '跟随系统' : theme === 'light' ? '浅色' : '深色';
+  if (btn) btn.title = '主题：' + label;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0e1116' : '#ffffff');
+  savePrefs();
+}
+
+/* ===== 60 SELECT ===== */
+function buildFacets(items) {
+  const types = new Map(), archs = new Map(), models = new Map(), maintains = new Map(), years = new Map();
+  const flags = { snapshot: 0, forum: 0, download: 0 };
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    types.set(it.typeGroup, (types.get(it.typeGroup) || 0) + 1);
+    for (const a of it.archSet) archs.set(a, (archs.get(a) || 0) + 1);
+    for (const m of it.modelIds) models.set(m, (models.get(m) || 0) + 1);
+    if (it.maintainer) maintains.set(it.maintainer, (maintains.get(it.maintainer) || 0) + 1);
+    if (it.year) years.set(String(it.year), (years.get(String(it.year)) || 0) + 1);
+    if (it.hasSnapshot) flags.snapshot++;
+    if (it.hasForum) flags.forum++;
+    if (it.hasValidDownload) flags.download++;
+  }
+  const byCount = (a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1);
+  return {
+    types: Array.from(types).sort(byCount),
+    archs: Array.from(archs).sort((a, b) => CFG.ARCH_ORDER.indexOf(a[0]) - CFG.ARCH_ORDER.indexOf(b[0])),
+    models: Array.from(models).sort(byCount),
+    maintainers: Array.from(maintains).sort(byCount),
+    years: Array.from(years).sort((a, b) => b[0].localeCompare(a[0])),
+    flags: flags
+  };
+}
+function queryTokens() {
+  return state.q.toLowerCase().split(/\s+/).filter(Boolean);
+}
+function itemMatches(it, tokens) {
+  const { types, archs, models, maintainers, years, flags } = state;
+  if (tokens.length) {
+    for (let t = 0; t < tokens.length; t++) {
+      if (it.searchText.indexOf(tokens[t]) < 0) return false;
+    }
+  }
+  if (types.size && !types.has(it.typeGroup)) return false;
+  if (archs.size && models.size) {
+    /* 双维度：必须存在「同一个安装包」同时命中架构与机型，
+       否则会出现筛出来却下载不了的条目（groupMatches 与下载解析共用）。
+       注意：此分支含 valid 校验，与单维度口径略有差异，属预期。 */
+    if (!it.downloadGroups.some(g => groupMatches(g, archs, models))) return false;
+  } else {
+    if (archs.size && !it.archSet.some(a => archs.has(a))) return false;
+    if (models.size && !it.modelIds.some(m => models.has(m))) return false;
+  }
+  if (maintainers.size && !maintainers.has(it.maintainer)) return false;
+  if (years.size && !years.has(String(it.year))) return false;
+  if (flags.size) {
+    if (flags.has('snapshot') && !it.hasSnapshot) return false;
+    if (flags.has('forum') && !it.hasForum) return false;
+    if (flags.has('download') && !it.hasValidDownload) return false;
+  }
+  return true;
+}
+function applyFilters(list) {
+  const tokens = queryTokens();
+  const src = list || state.items;
+  const out = [];
+  for (let i = 0; i < src.length; i++) {
+    if (itemMatches(src[i], tokens)) out.push(src[i]);
+  }
+  return out;
+}
+function sortItems(list) {
+  const key = state.sortKey;
+  const dir = state.sortDir === 'asc' ? 1 : -1;
+  const tail = [];
+  let arr = list;
+  if (key === 'version') {
+    arr = [];
+    for (let i = 0; i < list.length; i++) (list[i].vkey.kind === 2 ? tail : arr).push(list[i]);
+  } else {
+    arr = list.slice();
+  }
+  const cmpName = (a, b) => a.name.localeCompare(b.name, 'en', { numeric: true, sensitivity: 'base' });
+  arr.sort((a, b) => {
+    let r = 0;
+    if (key === 'version') r = cmpVersion(a, b);
+    else if (key === 'name') r = cmpName(a, b);
+    else if (key === 'devices') r = a.platformIds.length - b.platformIds.length;
+    else if (key === 'downloads') r = a.downloadGroups.length - b.downloadGroups.length;
+    else r = a.ts - b.ts;
+    if (r !== 0) return r * dir;
+    if (a.ts !== b.ts) return b.ts - a.ts;
+    const n = cmpName(a, b);
+    if (n !== 0) return n;
+    return a.id - b.id;
+  });
+  if (tail.length) {
+    tail.sort((a, b) => (b.ts - a.ts) || cmpName(a, b));
+    arr = arr.concat(tail);
+  }
+  return arr;
+}
+function countActive() {
+  let n = state.q.trim() ? 1 : 0;
+  ['types', 'archs', 'models', 'maintainers', 'years', 'flags'].forEach(k => { n += state[k].size; });
+  return n;
+}
+function activeChips() {
+  const chips = [];
+  if (state.q.trim()) chips.push({ key: 'q', value: '', label: '关键词', text: state.q.trim() });
+  const add = (key, set, fmt) => set.forEach(v => chips.push({ key: key, value: v, label: fmt.label, text: fmt.text(v) }));
+  add('types', state.types, { label: '类型', text: v => v });
+  add('archs', state.archs, { label: '架构', text: v => CFG.ARCH_LABEL[v] || v });
+  add('models', state.models, { label: '机型', text: v => v });
+  add('maintainers', state.maintainers, { label: '维护者', text: v => v });
+  add('years', state.years, { label: '年份', text: v => v });
+  add('flags', state.flags, { label: '状态', text: v => FLAG_META[v] || v });
+  return chips;
+}
+
+/* ===== 80 SANITIZE ===== */
+const ENTITY_MAP = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'",
+  mdash: '—', ndash: '–', hellip: '…', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”',
+  copy: '©', reg: '®', trade: '™', deg: '°', middot: '·', bull: '•', times: '×'
+};
+function decodeEntities(s) {
+  return String(s).replace(/&(#[xX][0-9a-fA-F]+|#\d+|[a-zA-Z][a-zA-Z0-9]*);/g, (m, e) => {
+    if (e.charAt(0) === '#') {
+      const code = (e.charAt(1) === 'x' || e.charAt(1) === 'X') ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+      if (!Number.isFinite(code) || code <= 0 || code > 0x10ffff) return m;
+      try { return String.fromCodePoint(code); } catch (err) { return m; }
+    }
+    const v = ENTITY_MAP[e.toLowerCase()];
+    return v != null ? v : m;
+  });
+}
+/* 索引期：正则抽纯文本（819 次，避免 DOM 解析开销） */
+function htmlToText(html) {
+  let s = String(html || '');
+  s = s.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/(p|div|li|tr|h[1-6]|blockquote|pre|table|section)>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ');
+  s = decodeEntities(s);
+  return normText(s);
+}
+function makeSummary(text, n) {
+  const t = normText(text);
+  if (t.length <= n) return t;
+  let cut = t.slice(0, n);
+  const p = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('。'), cut.lastIndexOf('! '), cut.lastIndexOf('? '), cut.lastIndexOf('；'), cut.lastIndexOf('; '));
+  if (p > n * 0.55) cut = cut.slice(0, p + 1);
+  return cut.replace(/[\s,;:，；：、]+$/, '') + '…';
+}
+function safeProtocol(url, allow) {
+  const s = String(url || '').trim();
+  if (!s) return false;
+  if (/^(javascript|data|vbscript|file):/i.test(s)) return false;
+  if (/^(#|\/|\.\/|\.\.\/)/.test(s)) return false;
+  try {
+    const u = new URL(s, location.href);
+    return allow.indexOf(u.protocol) >= 0 ? u.href : false;
+  } catch (e) { return false; }
+}
+/* 详情期：白名单重建 DOM（只对真正打开的条目执行，结果缓存） */
+function sanitizeHtml(html, doc) {
+  const d = doc || document.implementation.createHTMLDocument('desc');
+  const src = d.createElement('div');
+  src.innerHTML = String(html || '');
+  const out = d.createElement('div');
+  const walk = (from, to) => {
+    const nodes = Array.from(from.childNodes);
+    for (const node of nodes) {
+      if (node.nodeType === 3) { to.appendChild(d.createTextNode(node.nodeValue)); continue; }
+      if (node.nodeType !== 1) continue;
+      const tag = node.nodeName.toLowerCase();
+      if (CFG.TAG_DROP.indexOf(tag) >= 0) continue;
+      if (CFG.TAG_ALLOW.indexOf(tag) < 0) { walk(node, to); continue; }  // 未知标签 unwrap
+      const allow = CFG.ATTR_ALLOW[tag] || [];
+      const el = d.createElement(tag);
+      for (const attr of Array.from(node.attributes)) {
+        const name = attr.name.toLowerCase();
+        if (allow.indexOf(name) < 0) continue;
+        const val = String(attr.value || '');
+        if (name === 'href') {
+          const href = safeProtocol(val, CFG.HREF_PROTO);
+          if (href) el.setAttribute('href', href);
+        } else if (name === 'src') {
+          const src2 = safeProtocol(val, CFG.SRC_PROTO);
+          if (src2) el.setAttribute('src', httpsImg(src2));
+        } else if (name === 'width' || name === 'height') {
+          const n = parseInt(val, 10);
+          if (Number.isFinite(n)) el.setAttribute(name, String(Math.min(480, Math.max(16, n))));
+        } else {
+          el.setAttribute(name, val);
+        }
+      }
+      if (tag === 'a') {
+        if (!el.getAttribute('href')) {
+          const span = d.createElement('span');
+          while (el.firstChild) span.appendChild(el.firstChild);
+          to.appendChild(span);
+          continue;
+        }
+        el.setAttribute('target', '_blank');
+        el.setAttribute('rel', 'noopener noreferrer nofollow');
+      }
+      if (tag === 'img') {
+        if (!el.getAttribute('src')) continue;
+        el.setAttribute('loading', 'lazy');
+        el.setAttribute('decoding', 'async');
+        el.setAttribute('referrerpolicy', 'no-referrer');
+        el.setAttribute('alt', el.getAttribute('alt') || '');
+      }
+      to.appendChild(el);
+      walk(node, el);
+    }
+  };
+  walk(src, out);
+  return out.innerHTML;
+}
+
+/* ===== 70 RENDER ===== */
+let listObserver = null;
+
+function iconHtml(it, size) {
+  const initial = esc((it.name || '?').trim().charAt(0) || '?');
+  if (!it.icon) return '<span class="img-fallback' + (size >= 50 ? ' img-fallback--lg' : '') + '" aria-hidden="true">' + initial + '</span>';
+  return '<img class="card__icon" src="' + esc(it.icon) + '" alt="" loading="lazy" decoding="async" ' +
+    'referrerpolicy="no-referrer" data-ph="' + initial + '">';
+}
+function hl(text, tokens) {
+  const safe = esc(text);
+  if (!tokens.length) return safe;
+  const t = esc(tokens[0]);
+  if (!t) return safe;
+  try {
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return safe.replace(re, '<mark>$1</mark>');
+  } catch (e) { return safe; }
+}
+function summaryFor(it) {
+  const tokens = queryTokens();
+  if (!tokens.length) return it.summary;
+  const idx = it.descText.toLowerCase().indexOf(tokens[0]);
+  if (idx < 0) return it.summary;
+  const start = Math.max(0, idx - 40);
+  return (start > 0 ? '…' : '') + it.descText.slice(start, start + 190);
+}
+/* ---- 下载解析：左侧「架构 / 机型」筛选 -> 具体安装包 ---- */
+const IS_WECHAT = /MicroMessenger/i.test(navigator.userAgent);
+/* 筛选与下载共用同一个谓词，避免「筛出来却下不了」 */
+function groupMatches(g, A, M) {
+  if (!g.valid) return false;
+  if (A && A.size && !g.archs.some(a => A.has(a))) return false;
+  if (M && M.size && !g.pids.some(p => M.has(p))) return false;
+  return true;
+}
+function hasDownloadFilter() { return state.archs.size > 0 || state.models.size > 0; }
+function groupsFor(it, A, M) {
+  A = A || state.archs;
+  M = M || state.models;
+  const list = it.downloadGroups.filter(g => groupMatches(g, A, M));
+  if (list.length < 2) return list;
+  const byModel = g => (M.size && g.pids.some(p => M.has(p))) ? 1 : 0;
+  return list.slice().sort((a, b) =>
+    (byModel(b) - byModel(a)) || (rankGroup(a) - rankGroup(b)) || (b.n - a.n) ||
+    (a.location < b.location ? -1 : 1));
+}
+function resolveDownload(it) {
+  if (!hasDownloadFilter()) {
+    return { kind: 'need-filter', groups: it.downloadGroups.filter(g => g.valid) };
+  }
+  const groups = groupsFor(it);
+  if (!groups.length) {
+    return { kind: 'fallback', groups: it.downloadGroups.filter(g => g.valid) };
+  }
+  if (groups.length === 1) return { kind: 'single', group: groups[0], groups: groups };
+  return { kind: 'multi', group: groups[0], groups: groups };
+}
+/* 必须由真实 <a> 触发导航，且只允许在用户 click 处理器内同步调用。
+   禁令：① 不用 window.open（noopener 下返回 null，微信 WebView 会静默失败）
+        ② 不用 location.assign（会把单页导航走，丢筛选与滚动）
+        ③ 调用前后不得有 await / setTimeout / rAF；架构选项必须用 click 而非 change */
+function openDownload(g) {
+  const a = document.createElement('a');
+  a.href = g.location;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 0);
+}
+/* 卡片/表格下载按钮三态：未筛选=描边按钮，单包=真 <a>，多包=带角标按钮 */
+function downloadBtnHtml(it, opts) {
+  opts = opts || {};
+  const compact = !!opts.compact;
+  const cls = 'btn' + (compact ? '' : ' btn--sm');
+  const r = resolveDownload(it);
+  if (r.kind === 'need-filter') {
+    return '<button type="button" class="' + cls + '" data-act="download" data-id="' + it.id + '" ' +
+      'title="请先选择架构或机型" aria-label="下载 ' + esc(it.name) + '，请先选择架构或机型">' +
+      DL_ICON + (compact ? '' : '<span>下载</span>') + '</button>';
+  }
+  if (r.kind === 'single') {
+    const g = r.group;
+    const arch = CFG.ARCH_LABEL[g.archs[0]] || g.archs[0] || '安装包';
+    return '<a class="' + cls + ' btn--primary" href="' + esc(g.location) + '" target="_blank" rel="noopener noreferrer" ' +
+      'data-act="download" title="下载 ' + esc(baseName(g.location)) + '" aria-label="下载 ' + esc(it.name) + '（' + esc(arch) + '）">' +
+      DL_ICON + (compact ? '' : '<span>下载</span>') + '</a>';
+  }
+  const n = r.groups.length;
+  const fb = r.kind === 'fallback';
+  return '<button type="button" class="' + cls + ' btn--primary btn--count" data-act="download" data-id="' + it.id + '" ' +
+    'title="' + (fb ? '当前筛选没有匹配的安装包，点击选择其它' : '有 ' + n + ' 个匹配安装包，点击选择') + '" ' +
+    'aria-label="下载 ' + esc(it.name) + '，' + (fb ? '当前筛选没有匹配的安装包' : '有 ' + n + ' 个匹配安装包') + '，需要选择">' +
+    DL_ICON + (compact ? '' : '<span>下载</span>') + '<span class="btn__count">' + n + '</span></button>';
+}
+/* ---- 下载选择层：step1 选架构/机型 → step2 选安装包 ---- */
+const pickerState = { itemId: null, step: 1, groups: null, fromStep1: false, modelQuery: '' };
+
+function pickerItem() {
+  return state.items.find(x => x.id === pickerState.itemId) || null;
+}
+function modelsHtml(it) {
+  const q = pickerState.modelQuery.trim().toLowerCase();
+  let list = it.modelIds.slice().sort();
+  if (q) list = list.filter(m => m.toLowerCase().indexOf(q) >= 0);
+  if (!list.length) return '<p class="facet__note">没有匹配的机型标识。</p>';
+  const limit = q ? 40 : 12;
+  return list.slice(0, limit).map(m =>
+    '<button type="button" class="check" data-pick-model="' + esc(m) + '" style="text-align:left;border:0;background:none;width:100%">' +
+    '<span class="check__label">' + esc(m) + '</span><span class="check__count">选择</span></button>').join('') +
+    (list.length > limit ? '<p class="facet__note">还有 ' + (list.length - limit) + ' 个，输入关键词缩小范围</p>' : '');
+}
+function step1Html(it) {
+  const arches = CFG.ARCH_ORDER.filter(a => it.archSet.indexOf(a) >= 0);
+  const chips = arches.map(a =>
+    '<label class="pick__chip"><input type="radio" name="pick-arch" value="' + esc(a) + '">' +
+    '<span>' + esc(CFG.ARCH_LABEL[a] || a) + '</span></label>').join('');
+  return '<p class="pick__hint" id="picker-hint">' +
+      '不同 QNAP 机型使用不同的安装包，选错会装不上。选择后会按该条件筛选列表，后续下载直接使用，不必再问。' +
+      '<br>不知道该选哪个？在 NAS 的「App Center → 设置」或机型参数页可以看到架构标识。</p>' +
+    '<fieldset class="pick__group"><legend>架构（该软件提供 ' + arches.length + ' 种）</legend>' +
+      '<div class="pick__chips">' + (chips || '<span class="muted">该条目没有可用架构</span>') + '</div></fieldset>' +
+    '<fieldset class="pick__group"><legend>或按机型（' + it.modelIds.length + ' 个）</legend>' +
+      '<input class="facet__search" type="search" data-picker-model-search placeholder="搜索该软件的机型标识，如 TS-X35" value="' + esc(pickerState.modelQuery) + '">' +
+      '<div class="pick__models" data-picker-models>' + modelsHtml(it) + '</div></fieldset>';
+}
+function step2Html(it, groups, fallback) {
+  const rows = groups.map(g => {
+    const arch = g.archs.map(a => CFG.ARCH_LABEL[a] || a).join(' / ') || '未标注架构';
+    return '<a class="pick__row" href="' + esc(g.location) + '" target="_blank" rel="noopener noreferrer" data-pick-pkg>' +
+      '<span class="pick__name">' + esc(baseName(g.location)) + '</span>' +
+      '<span class="tag tag--accent">' + esc(arch) + '</span>' +
+      '<span class="muted" style="font-size:11.5px">覆盖 ' + g.n + ' 个设备</span>' +
+      '<span class="btn btn--primary btn--sm">下载</span></a>';
+  }).join('');
+  return '<p class="pick__hint" id="picker-hint">' +
+      (fallback
+        ? '当前筛选没有匹配的安装包，以下是该软件的全部可下载安装包。'
+        : '找到 <strong>' + groups.length + '</strong> 个匹配安装包，请选择要下载的：') + '</p>' +
+    '<div class="pick__list">' + rows + '</div>' +
+    (IS_WECHAT ? '<p class="facet__note" role="alert">微信内可能无法直接下载，请点右上角「在浏览器中打开」后再试。</p>' : '');
+}
+function renderPicker() {
+  const dlg = $('#picker-dialog');
+  const it = pickerItem();
+  if (!dlg || !it) return;
+  const title = $('#picker-title'), body = $('#picker-body'), foot = $('#picker-foot');
+  dlg.dataset.step = String(pickerState.step);
+  if (pickerState.step === 1) {
+    title.textContent = '请先选择架构或机型';
+    body.innerHTML = step1Html(it);
+    foot.innerHTML = '<button class="btn" data-pick="close">取消</button>';
+  } else {
+    const r = resolveDownload(it);
+    const groups = (pickerState.groups && pickerState.groups.length) ? pickerState.groups : r.groups;
+    pickerState.groups = groups;
+    title.textContent = '选择安装包';
+    body.innerHTML = step2Html(it, groups, r.kind === 'fallback');
+    foot.innerHTML = '<button class="btn btn--ghost" data-pick="back">换个架构 / 机型</button>' +
+      '<button class="btn" data-pick="close">取消</button>';
+  }
+  if (title && title.focus) title.focus();
+}
+function openPicker(it, step) {
+  const dlg = $('#picker-dialog');
+  if (!dlg) return;
+  pickerState.itemId = it.id;
+  pickerState.step = step === 2 ? 2 : 1;
+  pickerState.fromStep1 = pickerState.step === 1;
+  pickerState.modelQuery = '';
+  pickerState.groups = pickerState.step === 2 ? resolveDownload(it).groups : null;
+  if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); }
+  else dlg.setAttribute('open', '');
+  renderPicker();
+  if (pickerState.step === 2 && pickerState.groups) pickerState.groups = resolveDownload(it).groups;
+}
+function closePicker() {
+  const dlg = $('#picker-dialog');
+  if (!dlg) return;
+  if (dlg.open && typeof dlg.close === 'function') dlg.close();
+  else dlg.removeAttribute('open');
+}
+function applyPick(key, value) {
+  const before = state[key].size;
+  state[key].clear();
+  state[key].add(value);
+  commit();
+  saveSelection();
+  if (before > 1) toast('已把「' + (key === 'archs' ? '架构' : '机型') + '」收敛为 ' + value + '（原多选已替换）');
+}
+function pickArch(it, arch) {
+  const A = new Set([arch]);
+  const list = it.downloadGroups.filter(g => groupMatches(g, A, state.models));
+  if (!list.length) { toast('该条目没有 ' + (CFG.ARCH_LABEL[arch] || arch) + ' 的安装包', 'err'); return; }
+  if (list.length === 1) {
+    openDownload(list[0]);            // 必须在任何重渲染 / await 之前，保持用户手势
+    applyPick('archs', arch);
+    closePicker();
+    watchDownload();
+    return;
+  }
+  applyPick('archs', arch);
+  pickerState.step = 2;
+  pickerState.groups = groupsFor(it);
+  renderPicker();
+}
+function pickModel(it, model) {
+  const M = new Set([model]);
+  const list = it.downloadGroups.filter(g => groupMatches(g, state.archs, M));
+  if (!list.length) { toast('该条目没有 ' + model + ' 的安装包', 'err'); return; }
+  if (list.length === 1) {
+    openDownload(list[0]);
+    applyPick('models', model);
+    closePicker();
+    watchDownload();
+    return;
+  }
+  applyPick('models', model);
+  pickerState.step = 2;
+  pickerState.groups = groupsFor(it);
+  renderPicker();
+}
+function handleDownload(id) {
+  const it = state.items.find(x => x.id === id);
+  if (!it) return;
+  const r = resolveDownload(it);
+  if (r.kind === 'need-filter') { openPicker(it, 1); return; }
+  if (r.kind === 'single') { openDownload(r.group); watchDownload(); return; }
+  openPicker(it, 2);
+}
+const DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"></path><path d="M4 19h16"></path></svg>';
+
+function cardHtml(it) {
+  const tokens = queryTokens();
+  const archs = it.archSet.slice(0, 3).map(a => '<span class="tag">' + esc(CFG.ARCH_LABEL[a] || a) + '</span>').join('') +
+    (it.archSet.length > 3 ? '<span class="tag">+' + (it.archSet.length - 3) + '</span>' : '');
+  const dl = it.hasValidDownload
+    ? downloadBtnHtml(it, { compact: true })
+    : '<button class="btn" disabled title="该条目没有可用的下载链接" aria-label="无可用下载链接">' + DL_ICON + '</button>';
+  return '<article class="card" data-id="' + it.id + '">' +
+    '<div class="card__head">' + iconHtml(it, 46) +
+      '<div class="card__id">' +
+        '<button class="card__title" data-act="detail" data-id="' + it.id + '">' + hl(it.name, tokens) + '</button>' +
+        '<div class="card__sub"><span class="ver">' + esc(it.version || '—') + '</span><span>' + esc(it.typeGroup) + '</span></div>' +
+      '</div>' +
+    '</div>' +
+    '<p class="card__desc">' + hl(summaryFor(it), tokens) + '</p>' +
+    '<div class="card__tags">' + archs + (it.hasForum ? '<span class="tag tag--accent">论坛帖</span>' : '') + '</div>' +
+    '<div class="card__foot"><span>' + esc(fmtDate(it.ts)) + '</span><span>' + it.platformIds.length + ' 设备</span>' + dl + '</div>' +
+    '</article>';
+}
+function rowHtml(it) {
+  const dl = it.hasValidDownload
+    ? downloadBtnHtml(it)
+    : '<span class="muted" style="font-size:12px">无有效链接</span>';
+  return '<tr data-id="' + it.id + '">' +
+    '<td><div class="c-app">' + iconHtml(it, 26) +
+      '<b><button class="card__title" data-act="detail" data-id="' + it.id + '" style="display:inline;-webkit-line-clamp:unset">' + esc(it.name) + '</button></b>' +
+    '</div></td>' +
+    '<td>' + esc(it.typeGroup) + '</td>' +
+    '<td class="c-mono">' + esc(it.version || '—') + '</td>' +
+    '<td class="c-mono">' + esc(fmtDate(it.ts)) + '</td>' +
+    '<td class="muted" style="font-size:12px">' + esc(it.archSet.map(a => CFG.ARCH_LABEL[a] || a).join(' / ')) + '</td>' +
+    '<td class="c-num">' + it.platformIds.length + '</td>' +
+    '<td class="c-act">' + dl + '</td>' +
+    '</tr>';
+}
+function tableHeadHtml() {
+  const cols = [
+    ['name', '软件'], ['type', '类型'], ['version', '版本'], ['date', '更新时间'],
+    ['arch', '架构'], ['devices', '设备数'], ['act', '下载']
+  ];
+  let html = '<table class="table"><thead><tr>';
+  for (const [key, label] of cols) {
+    if (key === 'type' || key === 'arch' || key === 'act') { html += '<th scope="col">' + label + '</th>'; continue; }
+    const active = state.sortKey === key;
+    html += '<th scope="col"' + (active ? ' aria-sort="' + (state.sortDir === 'asc' ? 'ascending' : 'descending') + '"' : '') + '>' +
+      '<button data-sort="' + key + '">' + label + '<span class="arrow">' + (active ? (state.sortDir === 'asc' ? '▲' : '▼') : '↕') + '</span></button></th>';
+  }
+  return html + '</tr></thead><tbody></tbody></table>';
+}
+
+function ensureListContainer() {
+  const list = $('#list');
+  if (!list) return null;
+  const want = state.view === 'table' ? 'list list--table' : 'list list--grid';
+  const hasSkeleton = !!list.querySelector('.skeleton-card');
+  if (list.className !== want || hasSkeleton) {
+    list.className = want;
+    list.innerHTML = state.view === 'table' ? tableHeadHtml() : '';
+  }
+  return list;
+}
+function renderList() {
+  const list = ensureListContainer();
+  if (!list) return;
+  state.offset = 0;
+  if (state.view === 'table') list.innerHTML = tableHeadHtml();
+  else list.innerHTML = '';
+  if (!state.filtered.length) return;
+  if (state.streaming) { renderStreamWindow(); return; }
+  renderBatch();
+  startObserver();
+}
+/* 流式期间切换筛选/排序时：最多渲 STREAM_CARDS_MAX 张，其余等收尾 */
+function renderStreamWindow() {
+  const list = $('#list');
+  if (!list) return;
+  const slice = state.filtered.slice(0, CFG.STREAM_CARDS_MAX);
+  const host = state.view === 'table' ? list.querySelector('tbody') : list;
+  if (!host) return;
+  host.insertAdjacentHTML('beforeend', slice.map(state.view === 'table' ? rowHtml : cardHtml).join(''));
+  state.offset = slice.length;
+}
+/* 新一批到达时插入：在顶部且按日期倒序 → 前插（顶部天然稳定）；否则后插（零位移） */
+function streamInsert(items) {
+  if (!items.length) return;
+  const list = ensureListContainer();
+  if (!list) return;
+  const slot = $('#state-slot');
+  if (slot && slot.innerHTML) slot.innerHTML = '';
+  if (state.view === 'table') {
+    const tb = list.querySelector('tbody');
+    if (!tb) return;
+    tb.insertAdjacentHTML('beforeend', items.map(rowHtml).join(''));
+    return;
+  }
+  const atTop = (window.scrollY || document.documentElement.scrollTop || 0) <= 8;
+  const prepend = atTop && state.sortKey === 'date' && state.sortDir === 'desc';
+  if (prepend) {
+    const sorted = items.slice().sort((a, b) => (b.ts - a.ts) || (b.id - a.id));
+    list.insertAdjacentHTML('afterbegin', sorted.map(cardHtml).join(''));
+  } else {
+    list.insertAdjacentHTML('beforeend', items.map(cardHtml).join(''));
+  }
+}
+function renderBatch() {
+  const list = $('#list');
+  if (!list) return;
+  const total = state.filtered.length;
+  if (state.offset >= total) { stopObserver(); return; }
+  let size;
+  if (state.view === 'table') size = state.offset === 0 ? CFG.BATCH_TABLE : CFG.BATCH_TABLE;
+  else size = state.offset === 0 ? CFG.BATCH_FIRST : CFG.BATCH_GRID;
+  const slice = state.filtered.slice(state.offset, state.offset + size);
+  const html = slice.map(state.view === 'table' ? rowHtml : cardHtml).join('');
+  const host = state.view === 'table' ? list.querySelector('tbody') : list;
+  if (!host) return;
+  host.insertAdjacentHTML('beforeend', html);
+  state.offset += slice.length;
+  if (state.offset >= total) stopObserver();
+}
+function startObserver() {
+  stopObserver();
+  const sentinel = $('#sentinel');
+  if (!sentinel || !('IntersectionObserver' in window)) return;
+  listObserver = new IntersectionObserver(entries => {
+    if (entries.some(e => e.isIntersecting)) renderBatch();
+  }, { rootMargin: CFG.ROOT_MARGIN });
+  listObserver.observe(sentinel);
+}
+function stopObserver() {
+  if (listObserver) { listObserver.disconnect(); listObserver = null; }
+}
+
+function renderResultBar() {
+  const rc = $('#result-count');
+  const clearBtn = $('#btn-clear');
+  const sortSel = $('#sort-select');
+  const dirBtn = $('#btn-sortdir');
+  if (state.phase === 'ready' || (state.phase === 'loading' && state.items.length)) {
+    const total = state.items.length;
+    const shown = state.filtered.length;
+    const active = countActive();
+    if (state.phase === 'loading') {
+      const pct = streamPct();
+      rc.innerHTML = '正在载入' + (pct >= 0 ? ' <em>' + pct + '%</em>' : '') +
+        ' · ' + shortNum(total) + ' 条' +
+        (state.bytes ? ' · ' + (state.bytes / 1048576).toFixed(1) + ' MB' : '') +
+        (active ? ' · 命中 ' + shortNum(shown) : '');
+    } else {
+      rc.innerHTML = '共 <em>' + shortNum(total) + '</em> 个软件' +
+        (active ? ' · 命中 <em>' + shortNum(shown) + '</em> 个' : '') +
+        (state.partial ? ' · <span style="color:var(--warn)">截至已载入</span>' : '');
+    }
+  } else if (state.phase === 'loading') {
+    rc.textContent = '正在连接仓库…';
+  } else {
+    rc.textContent = '暂无数据';
+  }
+  const n = countActive();
+  clearBtn.disabled = n === 0;
+  clearBtn.textContent = n ? '清空条件 (' + n + ')' : '清空条件';
+  if (sortSel) sortSel.value = state.sortKey;
+  if (dirBtn) {
+    dirBtn.textContent = state.sortDir === 'asc' ? '↑' : '↓';
+    dirBtn.title = state.sortDir === 'asc' ? '当前升序，点击切换为降序' : '当前降序，点击切换为升序';
+    dirBtn.setAttribute('aria-label', dirBtn.title);
+  }
+  const applyBtn = $('#sheet-apply');
+  if (applyBtn) applyBtn.textContent = state.phase === 'ready' ? '查看 ' + state.filtered.length + ' 个结果' : '查看结果';
+}
+function renderChips() {
+  const box = $('#chips');
+  if (!box) return;
+  const chips = activeChips();
+  box.innerHTML = chips.map(c => {
+    const removable = c.key !== 'q';
+    return '<span class="chip">' + (removable ? '<span class="muted">' + esc(c.label) + '</span>' : '') +
+      '<b>' + esc(c.text) + '</b>' +
+      '<button class="chip__x" data-remove="' + esc(c.key + (c.value ? '\u0001' + c.value : '')) + '" aria-label="移除条件 ' + esc(c.text) + '">×</button></span>';
+  }).join('');
+}
+function checkboxRow(key, value, label, count, checked) {
+  return '<label class="check"><input type="checkbox" data-facet="' + key + '" value="' + esc(value) + '"' +
+    (checked ? ' checked' : '') + '><span class="check__label">' + esc(label) + '</span>' +
+    (count != null ? '<span class="check__count">' + count + '</span>' : '') + '</label>';
+}
+function facetSection(key, title, hint, bodyHtml, moreHtml) {
+  return '<section class="facet" data-section="' + key + '"><h3 class="facet__title"><span>' + title + '</span>' +
+    (hint ? '<span class="facet__hint">' + hint + '</span>' : '') + '</h3>' + bodyHtml + (moreHtml || '') + '</section>';
+}
+function modelBoxHtml() {
+  const f = state.facets;
+  if (!f) return '';
+  const q = state.modelQuery.trim().toLowerCase();
+  let entries = f.models;
+  if (q) entries = entries.filter(e => e[0].toLowerCase().indexOf(q) >= 0);
+  if (!entries.length) return '<p class="facet__note">没有匹配的机型标识。</p>';
+  const limit = state.modelExpanded ? entries.length : 10;
+  const rows = entries.slice(0, limit).map(e => checkboxRow('models', e[0], e[0], e[1], state.models.has(e[0]))).join('');
+  const more = (!state.modelExpanded && entries.length > limit)
+    ? '<button class="facet__more" data-more="models">展开全部 ' + entries.length + ' 个机型</button>'
+    : (state.modelExpanded && entries.length > 10 ? '<button class="facet__more" data-more="models">收起</button>' : '');
+  return '<div class="facet__list">' + rows + '</div>' + more;
+}
+function renderFacets() {
+  const f = state.facets;
+  const targets = [$('#facets'), $('#sheet-facets')];
+  if (!f) { targets.forEach(t => { if (t) t.innerHTML = ''; }); return; }
+  /* 流式每批都会重算 facets：若焦点在面板内（正在输入机型），渲染后把焦点与光标还回去 */
+  const ae = document.activeElement;
+  const refocus = !!(ae && ae.closest && ae.closest('#facets,#sheet-facets') && ae.matches('[data-facet-search="models"]'));
+  const typeLimit = state.typeExpanded ? f.types.length : 8;
+  const typeRows = f.types.slice(0, typeLimit).map(e => checkboxRow('types', e[0], e[0], e[1], state.types.has(e[0]))).join('');
+  const typeMore = !state.typeExpanded && f.types.length > 8
+    ? '<button class="facet__more" data-more="types">展开全部 ' + f.types.length + ' 组</button>' : '';
+
+  const rawTypeCount = new Set(state.items.map(i => i.typeRaw)).size;
+  const archRows = f.archs.map(e => checkboxRow('archs', e[0], CFG.ARCH_LABEL[e[0]] || e[0], e[1], state.archs.has(e[0]))).join('');
+  const archHint = '通用架构 / 指定机型';
+  const maintRows = f.maintainers.map(e => checkboxRow('maintainers', e[0], e[0], e[1], state.maintainers.has(e[0]))).join('');
+  const yearRows = f.years.map(e => checkboxRow('years', e[0], e[0] + ' 年', e[1], state.years.has(e[0]))).join('');
+  const flagRows = ['snapshot', 'forum', 'download'].map(k =>
+    checkboxRow('flags', k, FLAG_META[k], f.flags[k], state.flags.has(k))).join('');
+
+  const html =
+    facetSection('types', '类型', rawTypeCount + ' → ' + f.types.length + ' 组',
+      '<div class="facet__list">' + typeRows + '</div>', typeMore) +
+    facetSection('archs', '架构', archHint, '<div class="facet__list">' + archRows + '</div>') +
+    facetSection('models', '机型标识', f.models.length + ' 个',
+      '<input class="facet__search" type="search" data-facet-search="models" placeholder="搜索机型，如 TS-X35" value="' + esc(state.modelQuery) + '">' +
+      '<div data-models-box>' + modelBoxHtml() + '</div>') +
+    facetSection('maintainers', '维护者', f.maintainers.length + ' 人', '<div class="facet__list">' + maintRows + '</div>') +
+    facetSection('years', '更新时间', '', '<div class="facet__list">' + yearRows + '</div>') +
+    facetSection('flags', '状态', '', '<div class="facet__list">' + flagRows + '</div>') +
+    '<p class="facet__note">筛选字段来自 repo.xml 中真实存在的元素；<b>category</b> 与 <b>language</b> 全库同值，未列为条件，可在详情中查看原值。</p>';
+
+  targets.forEach(t => { if (t) t.innerHTML = html; });
+  if (refocus) {
+    const el = document.querySelector('[data-facet-search="models"]');
+    if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} }
+  }
+}
+function syncFacetChecks() {
+  $$('input[data-facet]').forEach(input => {
+    const set = state[input.dataset.facet];
+    if (set) input.checked = set.has(input.value);
+  });
+}
+function renderModelLists() {
+  $$('[data-models-box]').forEach(el => { el.innerHTML = modelBoxHtml(); });
+}
+function renderSourceBadge() {
+  const badge = $('#source-badge');
+  const brandCount = $('#brand-count');
+  if (!badge) return;
+  if (!state.items.length) {
+    badge.className = 'badge';
+    badge.textContent = state.phase === 'error' ? '加载失败' : '加载中';
+    if (brandCount) brandCount.textContent = '';
+    return;
+  }
+  const SRC_LABEL = { file: '本地文件', snapshot: '内置快照', cache: '缓存', remote: '在线', memory: '内存' };
+  const srcText = SRC_LABEL[state.source] || '在线';
+  const cls = state.partial ? 'badge--warn'
+    : state.source === 'file' ? 'badge--warn'
+    : state.source === 'snapshot' ? 'badge--accent'
+    : 'badge--ok';
+  badge.className = 'badge ' + cls;
+  badge.textContent = (state.streaming ? '载入中 · ' + state.items.length + ' 条' : srcText) +
+    (!state.streaming && state.loadedAt ? ' · ' + fmtRelative(state.loadedAt) : '');
+  if (brandCount) {
+    brandCount.textContent = state.items.length + ' 个条目' + (state.cachechk ? ' · cachechk ' + state.cachechk : '');
+  }
+}
+function renderSkeleton() {
+  const list = $('#list');
+  const slot = $('#state-slot');
+  document.body.dataset.phase = 'loading';
+  if (slot) slot.innerHTML = '';
+  if (!list) return;
+  list.className = 'list list--grid';
+  list.innerHTML = new Array(9).fill('<div class="skeleton-card" aria-hidden="true"></div>').join('');
+}
+function renderState(kind, payload) {
+  payload = payload || {};
+  const slot = $('#state-slot');
+  const list = $('#list');
+  if (!slot) return;
+  if (list) list.innerHTML = '';
+  const iconMap = {
+    error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16.5v.5"></path></svg>',
+    empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 7.5v.5"></path></svg>'
+  };
+  const actions = [];
+  (payload.actions || []).forEach(a => {
+    actions.push('<button class="btn ' + (a.primary ? 'btn--primary' : 'btn--ghost') + '" data-state-act="' + esc(a.id) + '">' + esc(a.label) + '</button>');
+  });
+  slot.innerHTML = '<div class="state">' +
+    '<div class="state__icon">' + (iconMap[kind] || iconMap.info) + '</div>' +
+    '<h2>' + esc(payload.title || '出错了') + '</h2>' +
+    (payload.desc ? '<p>' + esc(payload.desc) + '</p>' : '') +
+    (payload.detail ? '<pre>' + esc(payload.detail) + '</pre>' : '') +
+    (actions.length ? '<div class="state__actions">' + actions.join('') + '</div>' : '') +
+    '</div>';
+}
+function renderAll() {
+  document.body.dataset.phase = state.phase;
+  renderSourceBadge();
+  renderResultBar();
+  renderChips();
+  const activePhase = state.phase === 'ready' || (state.phase === 'loading' && state.items.length > 0);
+  if (activePhase) {
+    syncFacetChecks();
+    const slot = $('#state-slot');
+    if (!state.filtered.length) {
+      const total = countActive();
+      const tokens = queryTokens();
+      const otherCount = total - (state.q.trim() ? 1 : 0);
+      if (state.phase === 'loading') {
+        renderState('info', {
+          title: '正在载入，稍等一下',
+          desc: '当前条件在已载入的 ' + state.items.length + ' 条里还没有匹配，剩余数据到达后会自动补齐。'
+        });
+      } else if (tokens.length && otherCount === 0) {
+        renderState('empty', {
+          title: '没有匹配的软件',
+          desc: '未找到包含「' + tokens.join(' ') + '」的软件' + (tokens.length > 1 ? '，试试减少关键词' : '，换个拼写试试') + '。',
+          actions: [{ id: 'clear', label: '清空条件', primary: true }, { id: 'import', label: '导入本地 XML' }]
+        });
+      } else {
+        renderState('empty', {
+          title: '当前筛选条件没有结果',
+          desc: '已启用 ' + total + ' 项条件：' + activeChips().map(c => c.label + '=' + c.text).join('，') + '。',
+          actions: [{ id: 'clear', label: '清空条件 (' + total + ')', primary: true }]
+        });
+      }
+    } else {
+      if (slot) slot.innerHTML = '';
+      renderList();
+    }
+  } else if (state.phase === 'error') {
+    renderState('error', state.error || { title: '加载失败' });
+  }
+}
+
+/* ===== 55 DETAIL ===== */
+function dlRowHtml(g, isMatch) {
+  const file = baseName(g.location);
+  const archs = g.archs.map(a => CFG.ARCH_LABEL[a] || a).join(' / ') || '未标注架构';
+  const pids = g.pids.map(pid => '<tr><td class="mono">' + esc(pid) + '</td><td class="mono">' +
+    esc(g.signature || '—') + '</td></tr>').join('');
+  return '<div class="dlrow' + (g.valid ? '' : ' is-invalid') + (isMatch ? ' is-match' : '') + '">' +
+    '<div class="dlrow__main">' +
+      '<div class="dlrow__name">' + esc(file) + '</div>' +
+      '<div class="dlrow__meta"><span class="tag tag--accent">' + esc(archs) + '</span>' +
+        '<span>覆盖 ' + g.n + ' 个设备</span>' +
+        (isMatch ? '<span class="tag tag--ok">匹配当前筛选</span>' : '') +
+        (g.external ? '<span class="tag tag--warn">外部域名</span>' : '') +
+        (g.valid ? '' : '<span class="tag tag--warn">链接无效：' + esc(g.invalidReason || '未知原因') + '</span>') +
+      '</div>' +
+      '<details style="margin-top:6px"><summary class="facet__more" style="padding-left:0">查看 ' + g.pids.length + ' 个 platformID 与签名</summary>' +
+        '<table class="plat-table"><thead><tr><th>platformID</th><th>signature</th></tr></thead><tbody>' + pids + '</tbody></table>' +
+        '<p class="facet__note mono" style="word-break:break-all">' + esc(g.location) + '</p>' +
+      '</details>' +
+    '</div>' +
+    '<div class="dlrow__act">' +
+      (g.valid
+        ? '<a class="btn btn--primary btn--sm" href="' + esc(g.location) + '" target="_blank" rel="noopener noreferrer" data-act="download">下载</a>'
+        : '<button class="btn btn--sm" disabled>不可用</button>') +
+      '<button class="btn btn--ghost btn--sm" data-copy="' + esc(g.location) + '">复制链接</button>' +
+    '</div>' +
+  '</div>';
+}
+function kvRow(label, valueHtml) {
+  return '<dt>' + esc(label) + '</dt><dd>' + valueHtml + '</dd>';
+}
+function linkOrDash(url) {
+  if (!url) return '<span class="muted">—</span>';
+  return '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(url) + '</a>';
+}
+function renderDetail(it) {
+  const dlg = $('#detail-dialog');
+  const tokens = queryTokens();
+  if (it.descSafe == null) {
+    try { it.descSafe = sanitizeHtml(it.descRaw); } catch (e) { it.descSafe = '<p>' + esc(it.descText) + '</p>'; }
+  }
+  const r = resolveDownload(it);
+  const headIcon = it.icon
+    ? '<img class="card__icon" src="' + esc(it.icon) + '" alt="" data-ph="' + esc((it.name || '?').charAt(0)) + '" data-size="lg" referrerpolicy="no-referrer">'
+    : '<span class="img-fallback img-fallback--lg" aria-hidden="true">' + esc((it.name || '?').charAt(0)) + '</span>';
+
+  const actions = [];
+  if (r.kind === 'single') {
+    const arch = CFG.ARCH_LABEL[r.group.archs[0]] || r.group.archs[0] || '安装包';
+    actions.push('<a class="btn btn--primary" href="' + esc(r.group.location) + '" target="_blank" rel="noopener noreferrer" ' +
+      'data-act="download" title="' + esc(baseName(r.group.location)) + '">下载 ' + esc(arch) + ' 安装包</a>');
+  } else if (r.kind === 'multi' || r.kind === 'fallback') {
+    actions.push('<button class="btn btn--primary" data-act="download" data-id="' + it.id + '">选择安装包（' + r.groups.length + '）</button>');
+  }
+  if (it.changeLog) actions.push('<a class="btn btn--ghost" href="' + esc(it.changeLog) + '" target="_blank" rel="noopener noreferrer">产品页 / 更新日志</a>');
+  if (it.forumLink) actions.push('<a class="btn btn--ghost" href="' + esc(it.forumLink) + '" target="_blank" rel="noopener noreferrer">论坛讨论帖</a>');
+  if (r.kind === 'single') actions.push('<button class="btn btn--ghost" data-copy="' + esc(r.group.location) + '">复制下载链接</button>');
+
+  const metaBits = [
+    '<span class="tag tag--accent">' + esc(it.typeGroup) + '</span>',
+    '<span class="mono">' + esc(it.version || '未提供版本号') + '</span>',
+    '<span>发布 ' + esc(fmtDate(it.ts)) + '</span>',
+    '<span>维护者 ' + esc(it.maintainer || '—') + '</span>',
+    '<span>' + it.platformIds.length + ' 个设备 / ' + it.downloadGroups.length + ' 个安装包</span>'
+  ];
+
+  const matchSet = new Set((r.kind === 'single' || r.kind === 'multi') ? r.groups.map(g => g.location) : []);
+  const orderedGroups = it.downloadGroups.slice().sort((a, b) =>
+    (matchSet.has(b.location) ? 1 : 0) - (matchSet.has(a.location) ? 1 : 0));
+  const dlHtml = orderedGroups.length
+    ? orderedGroups.map(g => dlRowHtml(g, matchSet.has(g.location))).join('')
+    : '<p class="muted">这个条目在 repo.xml 里没有 platform 节点，无法下载。</p>';
+
+  const platRows = it.platforms.map(p =>
+    '<tr><td class="mono">' + esc(p.pidRaw) + '</td>' +
+    '<td>' + esc(p.pid !== p.pidRaw ? p.pid : '') + (p.pid === p.pidRaw ? '<span class="muted">—</span>' : '') + '</td>' +
+    '<td><span class="tag">' + esc(CFG.ARCH_LABEL[p.arch] || p.arch) + '</span></td>' +
+    '<td class="mono" style="word-break:break-all">' + esc(p.signature || '—') + '</td></tr>').join('');
+
+  const kv =
+    kvRow('name（显示名）', esc(it.name)) +
+    kvRow('internalName', '<span class="mono">' + esc(it.internalName || '—') + '</span>') +
+    kvRow('version', '<span class="mono">' + esc(it.version || '—') + '</span>') +
+    kvRow('type（原始）', esc(it.typeRaw || '—') + (it.typeGroup !== it.typeRaw ? ' <span class="muted">→ ' + esc(it.typeGroup) + '</span>' : '')) +
+    kvRow('category', esc(it.category || '—')) +
+    kvRow('language', esc(it.language || '—')) +
+    kvRow('maintainer', esc(it.maintainer || '—')) +
+    kvRow('developer', esc(it.developer || '—')) +
+    kvRow('publishedDate', '<span class="mono">' + esc(it.dateRaw || '—') + '</span>') +
+    kvRow('changeLog', linkOrDash(it.changeLog)) +
+    kvRow('forumlink', it.forumLink ? linkOrDash(it.forumLink) : '<span class="muted">—（仓库中未提供）</span>') +
+    kvRow('snapshot', it.snapshot ? linkOrDash(it.snapshot) : '<span class="muted">—（仓库中未提供）</span>') +
+    kvRow('tutorialLink', it.tutorialLink ? linkOrDash(it.tutorialLink) : '<span class="muted">—（全库为空）</span>') +
+    kvRow('bannerImg', it.bannerImg ? linkOrDash(it.bannerImg) : '<span class="muted">—（全库为空）</span>') +
+    kvRow('icon', linkOrDash(it.icon100 || it.icon80));
+
+  dlg.innerHTML =
+    '<div class="detail__head">' + headIcon +
+      '<div class="detail__titles">' +
+        '<h2 id="detail-title">' + hl(it.name, tokens) + '</h2>' +
+        '<div class="detail__meta">' + metaBits.join('') + '</div>' +
+        '<div class="detail__actions">' + actions.join('') + '</div>' +
+      '</div>' +
+      '<button class="iconbtn dialog__close" data-act="close-detail" aria-label="关闭详情">×</button>' +
+    '</div>' +
+    '<div class="detail__body">' +
+      (it.snapshot ? '<div class="detail__sec"><h3>截图</h3><img class="shot" src="' + esc(it.snapshot) + '" alt="' + esc(it.name) + ' 截图" loading="lazy" referrerpolicy="no-referrer" data-ph="' + esc((it.name || '?').charAt(0)) + '"></div>' : '') +
+      '<div class="detail__sec"><h3>简介</h3><div class="desc">' + it.descSafe + '</div></div>' +
+      '<div class="detail__sec"><h3>下载（按安装包去重）</h3><div class="dl">' + dlHtml + '</div>' +
+        '<p class="facet__note">' +
+          (hasDownloadFilter()
+            ? '已按当前架构 / 机型筛选，带「匹配当前筛选」的安装包会排在最前面，可直接点行内「下载」；其余安装包为同软件的其他版本，确认机型后再点。'
+            : '还没有选择架构或机型，因此这里不提供一键下载按钮；确认下表中的文件名后缀（_x86_64 / _arm_64 …）后可点行内「下载」。') +
+          '安装包由 myqnap.org 直接提供，本站不做中转；若新标签页返回 404，说明该版本已从源站下架，可尝试「产品页 / 更新日志」。</p></div>' +
+      '<div class="detail__sec"><h3>仓库字段</h3><dl class="kv">' + kv + '</dl></div>' +
+      '<div class="detail__sec"><h3>适用设备（' + it.platforms.length + ' 条 platform 记录）</h3>' +
+        '<table class="plat-table"><thead><tr><th>platformID（原始）</th><th>归一化</th><th>架构</th><th>signature</th></tr></thead><tbody>' + platRows + '</tbody></table>' +
+      '</div>' +
+    '</div>';
+  dlg.__itemId = it.id;
+}
+function openDetail(id) {
+  const it = state.items.find(x => x.id === Number(id));
+  if (!it) return;
+  const dlg = $('#detail-dialog');
+  renderDetail(it);
+  if (typeof dlg.showModal === 'function') dlg.showModal();
+  else dlg.setAttribute('open', '');
+  dlg.querySelector('.detail__body').scrollTop = 0;
+}
+function closeDetail() {
+  const dlg = $('#detail-dialog');
+  if (dlg && dlg.open) dlg.close();
+}
+
+/* ===== 90 EVENTS ===== */
+let dlWatchDone = false;
+function watchDownload() {
+  if (dlWatchDone) return;
+  dlWatchDone = true;
+  setTimeout(() => {
+    if (document.visibilityState === 'visible') {
+      toast('没有开始下载？请允许本站弹出窗口，或用「复制链接」；微信内请用浏览器打开');
+    }
+  }, 3000);
+}
+function showNotice(text, kind, action) {
+  const box = $('#notice');
+  const txt = $('#notice-text');
+  const act = $('#notice-action');
+  if (!box || !txt) return;
+  txt.textContent = text;
+  box.dataset.kind = kind || 'warn';
+  box.hidden = false;
+  if (action) {
+    act.hidden = false;
+    act.textContent = action.label;
+    act.dataset.noticeAct = action.act;
+  } else {
+    act.hidden = true;
+    delete act.dataset.noticeAct;
+  }
+}
+function hideNotice() { const box = $('#notice'); if (box) box.hidden = true; }
+const ICON_REFRESH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.6-6.4"></path><path d="M21 3v6h-6"></path></svg>';
+const ICON_STOP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"></rect></svg>';
+function setBusy(busy, opts) {
+  opts = opts || {};
+  const pb = $('#progressbar');
+  const btn = $('#btn-refresh');
+  const list = $('#list');
+  if (pb) {
+    pb.hidden = !busy;
+    if (busy) {
+      const pct = typeof opts.pct === 'number' ? opts.pct : -1;
+      if (pct >= 0) {
+        pb.dataset.mode = 'determinate';
+        pb.style.setProperty('--p', Math.max(2, Math.min(99, Math.round(pct))) + '%');
+      } else {
+        pb.dataset.mode = 'indeterminate';
+        pb.style.removeProperty('--p');
+      }
+    }
+  }
+  if (list) list.setAttribute('aria-busy', String(!!busy));
+  if (btn) {
+    if (state.streaming) {
+      btn.innerHTML = ICON_STOP;
+      btn.title = '停止加载';
+      btn.setAttribute('aria-label', '停止加载');
+      btn.classList.remove('is-spinning');
+    } else {
+      btn.innerHTML = ICON_REFRESH;
+      btn.title = '从源站刷新（只更新本机缓存，不改变站内快照）';
+      btn.setAttribute('aria-label', '刷新仓库数据');
+      btn.classList.toggle('is-spinning', !!busy);
+    }
+  }
+}
+function toggleSheet(open) {
+  const sheet = $('#filter-sheet');
+  if (!sheet) return;
+  if (open) {
+    renderFacets();
+    if (typeof sheet.showModal === 'function') sheet.showModal();
+    else sheet.setAttribute('open', '');
+  } else if (sheet.open) sheet.close();
+}
+function bindEvents() {
+  /* 搜索 */
+  const input = $('#search-input');
+  const onQ = debounce(v => setQuery(v), CFG.DEBOUNCE_Q);
+  input.addEventListener('input', e => {
+    const v = e.target.value;
+    $('#search-clear').hidden = !v;
+    onQ(v);
+  });
+  $('#search-form').addEventListener('submit', e => {
+    e.preventDefault();
+    setQuery(input.value);
+    input.blur();
+  });
+  $('#search-clear').addEventListener('click', () => { setQuery(''); input.focus(); });
+
+  /* 工具栏 */
+  $('#btn-view-grid').addEventListener('click', () => setView('grid'));
+  $('#btn-view-table').addEventListener('click', () => setView('table'));
+  $('#btn-theme').addEventListener('click', () => {
+    const order = ['auto', 'light', 'dark'];
+    setTheme(order[(order.indexOf(state.theme) + 1) % order.length]);
+    toast('主题：' + (state.theme === 'auto' ? '跟随系统' : state.theme === 'light' ? '浅色' : '深色'));
+  });
+  $('#btn-refresh').addEventListener('click', () => {
+    if (state.streaming) { stopStream(); return; }
+    loadStream({ force: true });
+  });
+  $('#btn-import').addEventListener('click', () => $('#file-input').click());
+  $('#file-input').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (f) importFile(f);
+    e.target.value = '';
+  });
+  $('#btn-clear').addEventListener('click', clearFilters);
+  $('#btn-sortdir').addEventListener('click', () => setSortDir(state.sortDir === 'asc' ? 'desc' : 'asc'));
+  $('#sort-select').addEventListener('change', e => {
+    const key = e.target.value;
+    if (key === 'name') state.sortDir = 'asc';
+    else if (state.sortKey === key) { /* 保持 */ }
+    else state.sortDir = 'desc';
+    state.sortKey = key;
+    savePrefs();
+    commit();
+  });
+
+  /* 筛选面板 */
+  $('#btn-filter').addEventListener('click', () => toggleSheet(true));
+  $('#sheet-close').addEventListener('click', () => toggleSheet(false));
+  $('#sheet-apply').addEventListener('click', () => toggleSheet(false));
+  $('#sheet-clear').addEventListener('click', () => { clearFilters(); toggleSheet(false); });
+
+  /* 通知条 */
+  $('#notice-close').addEventListener('click', hideNotice);
+  $('#notice-action').addEventListener('click', e => {
+    const act = e.currentTarget.dataset.noticeAct;
+    if (act === 'retry') loadStream({ force: true });
+    else if (act === 'import') $('#file-input').click();
+    else if (act === 'online') loadStream({ force: true });
+  });
+
+  /* 全局委托：点击 */
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-act],[data-copy],[data-remove],[data-sort],[data-more],[data-state-act]');
+    if (!el) return;
+
+    if (el.dataset.copy != null) {
+      copyText(el.dataset.copy).then(ok => toast(ok ? '链接已复制到剪贴板' : '复制失败，请手动选择复制', ok ? '' : 'err'));
+      return;
+    }
+    if (el.dataset.remove != null) {
+      const raw = el.dataset.remove;
+      const [key, ...rest] = raw.split('\u0001');
+      const value = rest.join('\u0001');
+      if (key === 'q') setQuery('');
+      else if (state[key] && state[key].has(value)) { toggleFacet(key, value); syncFacetChecks(); }
+      return;
+    }
+    if (el.dataset.sort) { setSort(el.dataset.sort); return; }
+    if (el.dataset.more) {
+      const which = el.dataset.more;
+      if (which === 'types') { state.typeExpanded = !state.typeExpanded; renderFacets(); }
+      if (which === 'models') { state.modelExpanded = !state.modelExpanded; renderFacets(); }
+      return;
+    }
+    if (el.dataset.stateAct) {
+      const act = el.dataset.stateAct;
+      if (act === 'clear') clearFilters();
+      else if (act === 'import') $('#file-input').click();
+      else if (act === 'retry') loadStream({ force: true });
+      return;
+    }
+    const act = el.dataset.act;
+    if (act === 'detail') { openDetail(el.dataset.id || el.closest('[data-id]').dataset.id); }
+    else if (act === 'download') {
+      /* 带 data-id 的是“未解析”的按钮：先按筛选解析；不带的是详情行内真 <a>，直接放行 */
+      if (el.dataset.id != null) handleDownload(Number(el.dataset.id));
+      else watchDownload();
+    }
+    else if (act === 'close-detail') { closeDetail(); }
+  });
+
+  /* 全局委托：勾选 / 机型搜索 */
+  document.addEventListener('change', e => {
+    const t = e.target;
+    if (t.matches('input[data-facet]')) {
+      toggleFacet(t.dataset.facet, t.value);
+      syncFacetChecks();
+    }
+  });
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (t.matches('[data-facet-search="models"]')) {
+      state.modelQuery = t.value;
+      renderModelLists();
+    }
+  });
+
+  /* 弹层 */
+  const detail = $('#detail-dialog');
+  detail.addEventListener('click', e => { if (e.target === detail) closeDetail(); });
+  detail.addEventListener('close', () => { detail.__itemId = null; });
+  const sheet = $('#filter-sheet');
+  sheet.addEventListener('click', e => { if (e.target === sheet) toggleSheet(false); });
+
+  /* 下载选择层：架构/机型 → 安装包 */
+  const picker = $('#picker-dialog');
+  if (picker) {
+    picker.addEventListener('click', e => {
+      if (e.target === picker) { closePicker(); return; }
+      /* 架构必须用 click 驱动，不能监听 change（change 不在用户激活列表内，Safari 会拦掉下载） */
+      const radio = e.target.closest('input[name="pick-arch"]');
+      if (radio) {
+        const it = pickerItem();
+        if (it) pickArch(it, radio.value);
+        return;
+      }
+      const t = e.target.closest('[data-pick],[data-pick-model],[data-pick-pkg]');
+      if (!t) return;
+      if (t.dataset.pick === 'close') { closePicker(); return; }
+      if (t.dataset.pick === 'back') {
+        pickerState.step = 1;
+        pickerState.fromStep1 = true;
+        pickerState.groups = null;
+        renderPicker();
+        return;
+      }
+      if (t.dataset.pickModel) {
+        const it = pickerItem();
+        if (it) pickModel(it, t.dataset.pickModel);
+        return;
+      }
+      if (t.hasAttribute('data-pick-pkg')) { setTimeout(closePicker, 0); return; }
+    });
+    picker.addEventListener('input', e => {
+      const t = e.target;
+      if (t.matches('[data-picker-model-search]')) {
+        pickerState.modelQuery = t.value;
+        const box = picker.querySelector('[data-picker-models]');
+        const it = pickerItem();
+        if (box && it) box.innerHTML = modelsHtml(it);
+      }
+    });
+    picker.addEventListener('close', () => {
+      const id = pickerState.itemId;
+      pickerState.itemId = null;
+      pickerState.groups = null;
+      if (id != null) {
+        const btn = document.querySelector('[data-act="download"][data-id="' + id + '"]');
+        if (btn) btn.focus();
+      }
+    });
+  }
+
+  /* 键盘 */
+  document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+    if (e.key === '/' && !typing) { e.preventDefault(); input.focus(); input.select(); return; }
+    if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); input.focus(); input.select(); return; }
+    if (e.key === 'Escape') {
+      const openSheet = $('#filter-sheet').open;
+      const openDetailEl = $('#detail-dialog').open;
+      if (!openSheet && !openDetailEl && state.q) { e.preventDefault(); setQuery(''); }
+    }
+  });
+
+  /* 拖放导入 */
+  const drop = e => {
+    e.preventDefault();
+    document.body.classList.remove('is-dragover');
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) importFile(f);
+  };
+  window.addEventListener('dragover', e => { e.preventDefault(); document.body.classList.add('is-dragover'); });
+  window.addEventListener('dragleave', e => { if (e.relatedTarget === null) document.body.classList.remove('is-dragover'); });
+  window.addEventListener('drop', drop);
+
+  /* 图片加载失败占位（捕获阶段统一处理） */
+  document.addEventListener('error', e => {
+    const img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+    const ph = img.dataset.ph || (img.getAttribute('alt') || '?').charAt(0) || '?';
+    const span = document.createElement('span');
+    span.className = 'img-fallback' + (img.dataset.size === 'lg' ? ' img-fallback--lg' : '');
+    span.textContent = ph.toUpperCase();
+    span.setAttribute('aria-hidden', 'true');
+    if (img.classList.contains('shot')) {
+      span.className = 'state__icon';
+      span.textContent = '截图加载失败';
+      span.style.width = '100%';
+      span.style.height = '120px';
+    }
+    img.replaceWith(span);
+  }, true);
+}
+
+/* ===== 42 LOAD / APPLY ===== */
+function applyDataset(ds, source, loadedAt) {
+  state.items = ds.items;
+  state.facets = ds.facets;
+  state.cachechk = ds.cachechk || '';
+  state.loadedAt = loadedAt || Date.now();
+  state.source = source;
+  state.phase = 'ready';
+  state.error = null;
+  state.streaming = false;
+  if (ds.pidArch) state.pidArch = ds.pidArch;
+  pruneSelection();            /* 必须在 renderFacets 之前：旧 cookie 里的机型可能已不存在 */
+  renderFacets();
+  commit();
+}
+function finishTransition(fn) {
+  if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { fn(); return; }
+  try { document.startViewTransition(fn); } catch (e) { fn(); }
+}
+
+let streamAbort = null;
+let progressRaf = 0;
+let facetsTimer = 0;
+function streamPct() {
+  if (state.bytesTotal > 0) return Math.min(99, Math.round(state.bytes / state.bytesTotal * 100));
+  if (state.expected > 0) return Math.min(99, Math.round(state.items.length / state.expected * 100));
+  return -1;
+}
+function updateStreamProgress() {
+  if (progressRaf) return;
+  progressRaf = requestAnimationFrame(() => {
+    progressRaf = 0;
+    setBusy(true, { pct: streamPct() });
+    renderResultBar();
+  });
+}
+function scheduleFacets() {
+  if (facetsTimer) return;
+  facetsTimer = setTimeout(() => { facetsTimer = 0; renderFacets(); }, 400);
+}
+function stopStream() {
+  if (streamAbort) { try { streamAbort.abort(); } catch (e) {} streamAbort = null; }
+}
+
+/* 流式拉取：边下边切（</item> 边界）边增量归一化边插卡；收尾全量重建一次做排序归位 */
+async function loadStream(opts) {
+  opts = opts || {};
+  stopStream();
+  stopObserver();
+  streamAbort = new AbortController();
+  const signal = streamAbort.signal;
+
+  state.phase = 'loading';
+  state.streaming = true;
+  state.partial = false;
+  state.items = [];
+  state.filtered = [];
+  state.facets = null;
+  state.cachechk = '';
+  state.bytes = 0;
+  state.bytesTotal = 0;
+  state.failedBatches = 0;
+  state.expected = opts.expected || state.expected || 0;
+  renderSkeleton();
+  renderResultBar();
+  renderSourceBadge();
+  setBusy(true, { pct: -1 });
+
+  const allRaw = [];
+  let buf = '';
+  let pending = [];
+  let lastFlush = performance.now();
+
+  const flush = () => {
+    if (!pending.length) return;
+    const batchRaw = pending;
+    pending = [];
+    for (let i = 0; i < batchRaw.length; i++) allRaw.push(batchRaw[i]);
+    const ds = buildDataset({ items: batchRaw }, { seed: state.pidArch, idBase: state.items.length });
+    state.items = state.items.concat(ds.items);
+    state.facets = buildFacets(state.items);
+    if (state.streaming) {
+      const tokens = queryTokens();
+      streamInsert(ds.items.filter(it => itemMatches(it, tokens)));
+      renderChips();
+      renderResultBar();
+      scheduleFacets();
+    }
+    lastFlush = performance.now();
+  };
+
+  try {
+    const url = CFG.REPO_URL + (opts.force ? '?_ts=' + Date.now() : '');
+    let res;
+    try {
+      res = await fetch(url, { cache: 'no-store', mode: 'cors', credentials: 'omit', signal: signal });
+    } catch (e) {
+      if (e && e.name === 'AbortError') throw e;
+      throw new RepoError('network', '无法连接仓库服务器',
+        '请求 ' + CFG.REPO_URL + ' 失败：' + (e && e.message ? e.message : 'Failed to fetch') +
+        '。可能是网络中断，或被防火墙、代理、广告拦截插件阻断。');
+    }
+    if (!res.ok) {
+      throw new RepoError('http', '仓库服务器返回错误',
+        'HTTP ' + res.status + ' ' + (res.statusText || '') + '（' + CFG.REPO_URL + '）');
+    }
+
+    if (!res.body || typeof res.body.getReader !== 'function') {
+      /* 极老的浏览器没有流式 body：退回一次性解析 */
+      const text = await res.text();
+      const parsed = parseRepoXml(text);
+      const ds = buildDataset(parsed, { seed: null });
+      applyDataset(ds, 'remote');
+      await saveCache(parsed, 'remote', ds.pidArch);
+      hideNotice();
+      toast('已载入 ' + ds.items.length + ' 个条目');
+      return;
+    }
+
+    const enc = (res.headers.get('content-encoding') || 'identity').toLowerCase();
+    const len = Number(res.headers.get('content-length')) || 0;
+    if (len && enc === 'identity') state.bytesTotal = len;   // br/gzip 下 content-length 是压缩后长度，不能当分母
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder('utf-8');
+    for (;;) {
+      const chunk = await reader.read();
+      if (chunk.value) {
+        state.bytes += chunk.value.byteLength;
+        buf += dec.decode(chunk.value, { stream: true });
+      }
+      if (!state.cachechk) {
+        const m = buf.match(/<cachechk>(\d+)<\/cachechk>/);
+        if (m) state.cachechk = m[1];
+      }
+      if (buf.indexOf('</item>') >= 0) {
+        const cut = pickCompleteItems(buf);
+        buf = cut.rest;
+        if (cut.n) {
+          const batch = parseItemBatch(cut.body, cut.n);
+          if (batch) { for (let i = 0; i < batch.length; i++) pending.push(batch[i]); }
+          else state.failedBatches++;
+        }
+      }
+      if (pending.length >= CFG.STREAM_ITEMS ||
+          (pending.length >= CFG.STREAM_MIN_ITEMS && performance.now() - lastFlush >= CFG.STREAM_FLUSH_MS)) {
+        flush();
+        updateStreamProgress();
+      } else if (state.bytes) {
+        updateStreamProgress();
+      }
+      if (chunk.done) break;
+    }
+    buf += dec.decode();
+    const tail = pickCompleteItems(buf);
+    if (tail.n) {
+      const batch = parseItemBatch(tail.body, tail.n);
+      if (batch) { for (let i = 0; i < batch.length; i++) pending.push(batch[i]); }
+      else state.failedBatches++;
+    }
+    if (pending.length) flush();
+
+    if (state.failedBatches) {
+      /* 有整批解析失败：整份文本兜底重解析（不跳批，避免静默丢条目） */
+      const text = await fetchRepoText(true);
+      const parsed = parseRepoXml(text);
+      allRaw.length = 0;
+      for (let i = 0; i < parsed.items.length; i++) allRaw.push(parsed.items[i]);
+      state.cachechk = parsed.cachechk || state.cachechk;
+    }
+    if (!allRaw.length) {
+      throw new RepoError('noitems', '仓库中没有任何软件条目', '没有从仓库里解析到任何 <item>。');
+    }
+    const full = buildDataset({ cachechk: state.cachechk, items: allRaw }, { seed: null });
+    state.streaming = false;
+    finishTransition(() => applyDataset(full, 'remote'));
+    const ok = await saveCache({ cachechk: state.cachechk, items: allRaw }, 'remote', state.pidArch);
+    hideNotice();
+    toast('已载入 ' + full.items.length + ' 个条目' + (ok ? '' : '（缓存写入失败，本次会话有效）'));
+  } catch (err) {
+    state.streaming = false;
+    const aborted = !!(err && err.name === 'AbortError');
+    if (allRaw.length) {
+      const partial = buildDataset({ cachechk: state.cachechk, items: allRaw }, { seed: state.pidArch });
+      state.partial = true;
+      state.phase = 'ready';
+      state.items = partial.items;
+      state.facets = partial.facets;
+      if (partial.pidArch) state.pidArch = partial.pidArch;
+      renderFacets();
+      commit();
+      renderSourceBadge();
+      showNotice(aborted
+        ? '已停止加载，当前 ' + partial.items.length + ' 条（继续加载会从头重新拉取）'
+        : '载入中断，已显示 ' + partial.items.length + ' 条：' + (err.message || '网络异常'),
+        aborted ? 'info' : 'warn',
+        { label: aborted ? '继续加载' : '重试', act: 'retry' });
+      if (!aborted) toast('载入中断：' + (err.message || '网络异常'), 'err');
+      return;
+    }
+    state.phase = 'error';
+    state.error = {
+      title: (err && err.message) || '无法获取仓库数据',
+      desc: (err && err.detail) || '请检查网络连接后重试，或导入本地 repo.xml 文件离线浏览。',
+      detail: err && err.code ? '错误代码：' + err.code : '',
+      actions: [{ id: 'retry', label: '重试', primary: true }, { id: 'import', label: '导入本地 repo.xml' }]
+    };
+    renderAll();
+    renderSourceBadge();
+  } finally {
+    setBusy(false);
+  }
+}
+async function importFile(file) {
+  try {
+    const text = await readLocalFile(file);
+    const raw = parseRepoXml(text);
+    const ds = buildDataset(raw, { seed: null });
+    applyDataset(ds, 'file');
+    const ok = await saveCache(raw, 'file', ds.pidArch);
+    showNotice('已导入 ' + file.name + '：' + ds.items.length + ' 个条目' + (ok ? '，已缓存（下次打开直接可用）' : '，缓存写入失败（容量不足，本次会话有效）'),
+      'ok', { label: '恢复在线数据', act: 'online' });
+  } catch (err) {
+    toast((err && err.message) || '导入失败', 'err');
+    if (!state.items.length) {
+      state.phase = 'error';
+      state.error = {
+        title: (err && err.message) || '导入失败',
+        desc: (err && err.detail) || '请确认选择的是 myqnap.org 的 repo.xml 文件。',
+        detail: err && err.code ? '错误代码：' + err.code : '',
+        actions: [{ id: 'import', label: '重新选择文件', primary: true }, { id: 'retry', label: '改为在线加载' }]
+      };
+      renderAll();
+    } else {
+      const dt = err && err.detail ? '（' + String(err.detail).slice(0, 160) + '）' : '';
+      showNotice('导入失败：' + (err.message || '未知错误') + dt + '。已保留当前数据。', 'error', { label: '重试导入', act: 'import' });
+    }
+  }
+}
+
+/* ===== 99 BOOT ===== */
+async function init() {
+  setTheme(state.theme);
+  document.body.dataset.view = state.view;
+  $('#btn-view-grid').classList.toggle('is-on', state.view === 'grid');
+  $('#btn-view-table').classList.toggle('is-on', state.view === 'table');
+  bindEvents();
+  setBusy(true, { pct: -1 });
+  renderSkeleton();
+  renderResultBar();
+  renderSourceBadge();
+
+  let cached = null;
+  try { cached = await loadCache(); } catch (e) { cached = null; }
+  const fresh = cached && (Date.now() - (cached.meta.fetchedAt || 0) < CFG.CACHE_TTL);
+
+  /* 1) 新鲜缓存（0 网络，最快） */
+  if (fresh) {
+    try {
+      const ds = buildDataset(cached.raw, { seed: cached.pidArch });
+      const src = (cached.meta && cached.meta.source === 'file') ? 'file' : 'cache';
+      applyDataset(ds, src, (cached.meta && cached.meta.fetchedAt) || Date.now());
+      renderSourceBadge();
+      setBusy(false);
+      if (src === 'file') {
+        showNotice('正在浏览本地导入的文件（' + state.items.length + ' 个条目）。需要最新数据可点右侧按钮。', 'ok',
+          { label: '恢复在线数据', act: 'online' });
+      }
+      return;
+    } catch (err) {
+      await clearCache();
+      cached = null;
+      toast('缓存数据已损坏，已自动清除，正在重新加载');
+    }
+  }
+
+  /* 2) 站点快照（同源，首访快通道） */
+  const snap = await loadSnapshot();
+  if (snap) {
+    try {
+      const ds = buildDataset(snap.raw, { seed: snap.pidArch });
+      applyDataset(ds, 'snapshot', snap.meta.fetchedAt || Date.now());
+      state.snapshotAt = snap.meta.fetchedAt || 0;
+      state.expected = ds.items.length;
+      renderSourceBadge();
+      setBusy(false);
+      const age = Date.now() - (state.snapshotAt || 0);
+      if (age > CFG.SNAPSHOT_WARN_DAYS * 86400000) {
+        const days = Math.round(age / 86400000);
+        showNotice('内置数据生成于 ' + days + ' 天前，可能缺少新上架软件。点右侧按钮从源站刷新。',
+          age > CFG.SNAPSHOT_MAX_DAYS * 86400000 ? 'error' : 'warn',
+          { label: '刷新', act: 'retry' });
+      }
+      saveCache(snap.raw, 'snapshot', ds.pidArch);
+      return;
+    } catch (err) {
+      console.warn('[snapshot] 应用失败', err);
+    }
+  }
+
+  /* 3) 过期缓存兜底（先给用户看到东西，再提示刷新） */
+  if (cached) {
+    try {
+      const ds = buildDataset(cached.raw, { seed: cached.pidArch });
+      applyDataset(ds, 'cache', cached.meta.fetchedAt || Date.now());
+      renderSourceBadge();
+      setBusy(false);
+      showNotice('正在使用 ' + fmtRelative(state.loadedAt) + '的缓存数据，点右侧按钮获取最新。', 'warn',
+        { label: '刷新', act: 'retry' });
+      return;
+    } catch (err) { /* fallthrough */ }
+  }
+
+  /* 4) 直连源站（流式） */
+  await loadStream({});
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
