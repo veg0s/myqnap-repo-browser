@@ -241,7 +241,7 @@ def main():
     changed = True
     if not args.force and same_content(args.out, doc):
         changed = False
-        print("内容与现有快照一致，未改写 %s（避免每天产生 2.7MB 的无意义提交）" % args.out)
+        print("内容与现有快照一致，未改写 %s（CI 用 --force 强制覆盖）" % args.out)
     else:
         with io.open(args.out, "w", encoding="utf-8") as fh:
             fh.write(body)

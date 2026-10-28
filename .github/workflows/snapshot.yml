@@ -1,26 +1,33 @@
 name: snapshot
 
-# 每 24 小时从 myqnap.org 抓一次仓库，重新生成 data/snapshot.json。
+# 每 24 小时抓一次 myqnap.org，重新生成快照并整站覆盖部署到 GitHub Pages。
 # UTC 19:00 = 北京时间次日 03:00（源站在欧洲时区，这个点基本是它的低谷）。
-# 也支持在 Actions 页面手动 Run workflow。
+#
+# 刻意不把快照提交进仓库：旧版本的安装包链接本来就已经失效，留历史没有意义，
+# 而 2.7 MB 的快照每天提交一次会把仓库撑大。所以这里用「Actions 产物部署」——
+# 每次部署都是一次性产物，仓库里只保留几百字节的检查时间（顺便让定时任务不被停用）。
 on:
   schedule:
     - cron: "0 19 * * *"
   workflow_dispatch:
 
-# 需要写权限才能把新快照提交回仓库；GitHub 现在默认给只读 token，必须显式声明。
 permissions:
-  contents: write
+  contents: write     # 提交那几百字节的 status
+  pages: write        # 部署 Pages
+  id-token: write     # deploy-pages 需要 OIDC
 
-# 避免手动触发与定时任务同时跑、互相覆盖提交。
+# Pages 部署固定用 pages 组，避免两次部署互相踩
 concurrency:
-  group: snapshot
+  group: pages
   cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
 
     steps:
       - name: 检出仓库
@@ -31,34 +38,48 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: 生成快照
-        # --strict：自检不通过就非零退出，绝不写入半截数据
+      - name: 生成快照（每次覆盖，不留历史）
+        # --force：即使内容与仓库里的基线一致也重写，保证发布产物里的 generatedAt 是本次时间
+        # --strict：自检（条目数/链接后缀/重复项）不通过就非零退出，绝不发布半截数据
         # --retries 3：Cloudflare 偶发 52x / 连接重置时自动重试
-        run: python tools/build_snapshot.py --self-check --strict --retries 3
+        run: python tools/build_snapshot.py --self-check --strict --force --retries 3
 
-      - name: 写入任务摘要
+      - name: 组装站点
         run: |
-          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
-          import json
-          snap = json.load(open("data/snapshot.json", encoding="utf-8"))
-          st = json.load(open("data/snapshot.status.json", encoding="utf-8"))
-          print("### 仓库快照")
-          print(f"- 条目数：**{snap['count']}**")
-          print(f"- cachechk：`{snap['cachechk']}`")
-          print(f"- 快照生成时间：`{snap['generatedAt']}`")
-          print(f"- 内容是否有变化：{'是，已提交' if st.get('changed') else '否，仅更新检查时间'}")
-          print("")
-          print("> 内容没变时不会重写 2.7 MB 的快照，只更新几百字节的 status 文件，避免仓库体积膨胀。")
-          PY
+          rm -rf _site
+          mkdir -p _site/data
+          cp index.html _site/
+          cp data/snapshot.json data/snapshot.status.json _site/data/
+          : > _site/.nojekyll
+          echo "待发布文件："
+          find _site -type f -printf '  %p  %s bytes\n' | sort
 
-      - name: 提交变更
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+        with:
+          # 首次运行时自动开启 Pages，省得先去 Settings 点一遍。
+          # 若 Pages 已经是「分支直发」，需要手动把 Source 改成 GitHub Actions，否则 deploy-pages 会报源不匹配。
+          enablement: true
+
+      - name: 上传站点产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: 部署
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: 记录检查时间
+        # 只提交几百字节的 status：既能给页面提供「上次检查」时间，
+        # 也让仓库保持每天有提交，避免 GitHub 在 60 天无活动后自动停用定时任务。
         run: |
-          git add data/snapshot.json data/snapshot.status.json
+          git add data/snapshot.status.json
           if git diff --cached --quiet; then
-            echo "没有任何变更，跳过提交"
+            echo "status 无变化，跳过提交"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(snapshot): 每日同步 $(date -u +%Y-%m-%d)"
+          git commit -m "chore(snapshot): 检查于 $(date -u +%Y-%m-%dT%H:%MZ)"
           git push || { git pull --rebase --autostash && git push; }

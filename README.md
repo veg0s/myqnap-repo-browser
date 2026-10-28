@@ -49,13 +49,14 @@ git add data/snapshot.json && git commit -m "chore: 更新仓库快照" && git p
 `.github/workflows/snapshot.yml` 每天自动跑一次，**不用手动维护**：
 
 - 触发：定时 **UTC 19:00（北京时间次日 03:00）**，或在 Actions 页面手动 `Run workflow`
-- 流程：抓取源站 → `--self-check --strict` 自检（条目数、链接后缀、重复项）→ 有变化才提交
-- 失败即停：源站不可达会重试 3 次；自检不通过直接非零退出，**不会写入半截数据**，GitHub 会邮件通知你
+- 流程：抓取源站 → `--self-check --strict` 自检（条目数、链接后缀、重复项）→ 组装站点 → **整站覆盖部署**
+- 失败即停：源站不可达会重试 3 次；自检不通过直接非零退出，**不会发布半截数据**，GitHub 会邮件通知你
 
-两个刻意的设计：
+**为什么不把快照提交进仓库**：旧版本的安装包链接本来就失效了，留历史没有意义；而快照有 2.7 MB，每天提交一次一年能把仓库撑到几百 MB。所以这里走「Actions 产物部署」——每次部署都是一次性产物，`_site/` 目录不进版本库，仓库历史里没有快照的版本堆积，也不需要 force-push。
 
-1. **内容没变就不写快照**。`generatedAt` 每次都会变，如果无脑重写，每天都会产生一个 2.7 MB 的提交，一年能把仓库撑到几百 MB。脚本会比较 `cachechk` 与 `items`，一致就跳过。
-2. **但每天仍会提交一个几百字节的 `data/snapshot.status.json`**（`lastRun` / `changed`）。一是让页面能区分「数据多久没变」和「最后一次检查是什么时候」，避免明明每天在查却提示「快照已过期」；二是让仓库保持每天有提交，避免 GitHub 在 60 天无活动后自动停用定时任务。
+仓库里那份 `data/snapshot.json` 只是**本地预览用的基线**，线上用的是每次部署时现生成的。想更新基线就在本地跑一次脚本再提交（可选）。
+
+唯一提交进仓库的是 `data/snapshot.status.json`（几百字节，记录 `lastRun` / `changed`）。两个作用：页面用它显示「上次检查时间」，区分「数据多久没变」和「多久没查过」；同时让仓库每天有一次提交，避免 GitHub 在 60 天无活动后自动停用定时任务。
 
 首次启用注意：仓库 Settings → Actions → General 里确认 Workflow permissions 允许读写（workflow 已声明 `permissions: contents: write`，若组织策略改成只读需要在这里放开）。
 
@@ -69,6 +70,8 @@ git add data/snapshot.json && git commit -m "chore: 更新仓库快照" && git p
 
 ## 部署到 GitHub Pages
 
+用 **GitHub Actions 部署**（每天自动覆盖发布，见上一节）：
+
 1. 在 GitHub 新建**空仓库** `myqnap-repo-browser`（不要勾 README / .gitignore）
 2. 本地推送：
 
@@ -77,8 +80,10 @@ git add data/snapshot.json && git commit -m "chore: 更新仓库快照" && git p
    git push -u origin main
    ```
 
-3. 仓库 **Settings → Pages → Build and deployment**：Source 选 `Deploy from a branch`，Branch 选 `main`、目录选 `/ (root)`，保存
-4. 等 1–3 分钟，访问 `https://<USER>.github.io/myqnap-repo-browser/`
+3. 仓库 **Settings → Pages → Build and deployment**：Source 选 **`GitHub Actions`**（不是 Deploy from a branch）
+4. 到 **Actions → snapshot → Run workflow** 手动跑一次；跑完就能访问 `https://<USER>.github.io/myqnap-repo-browser/`
+
+> 想改成「分支直发」也可以：Settings 里 Source 选 `Deploy from a branch` → `main` / `(root)`，效果一样能看，但那样线上的快照就是仓库里那份基线，不会每天更新，而且 `data/snapshot.json` 每次改动都会进历史。定时任务里的 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 三步需要删掉。
 
 注意：Pages 对 HTML 的缓存是 `max-age=600`，**发版后最多约 10 分钟才全局生效**。验证新版本可以加个查询串绕过 CDN：`.../index.html?v=2`。
 
